@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AST2 Miner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body { background: #0d1117; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+    .balance { font-size: 40px; font-weight: bold; color: #f7931a; }
+    button { background: #f7931a; color: black; border: none; padding: 15px 30px; font-size: 18px; border-radius: 10px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>⛏️ AST2 Miner</h1>
+  <p>Saldo Kamu</p>
+  <div class="balance" id="balance">0.00 A2S</div>
+  <button id="mineBtn">Mulai Mining</button>
+
+<script>
+const SUPABASE_URL = "https://eacnastpvwjwngvrpilk.supabase.co"
+const SUPABASE_KEY = "sb_publishable_cU45-75Obett_5aHh..." // GANTI PAKE KEY KAMU YG LENGKAP
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+const tg = window.Telegram.WebApp;
+tg.expand();
+const user = tg.initDataUnsafe.user;
+let balance = 0;
+let mining = false;
+let interval;
+
+async function loadUser() {
+  let { data } = await supabase.from('users').select('*').eq('user_id', user.id).single();
+  if (!data) {
+    await supabase.from('users').insert({ user_id: user.id, username: user.username });
+  } else {
+    balance = data.balance;
+  }
+  document.getElementById('balance').innerText = balance.toFixed(2) + " A2S";
+}
+
+document.getElementById('mineBtn').onclick = () => {
+  mining = !mining;
+  document.getElementById('mineBtn').innerText = mining ? "Stop Mining" : "Mulai Mining";
+  if (mining) {
+    interval = setInterval(async () => {
+      balance += 0.1;
+      document.getElementById('balance').innerText = balance.toFixed(2) + " A2S";
+      await supabase.from('users').update({ balance: balance }).eq('user_id', user.id);
+    }, 1000);
+  } else {
+    clearInterval(interval);
+  }
+}
+
+loadUser();
+</script>
+</body>
+</html>
