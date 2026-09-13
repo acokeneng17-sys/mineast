@@ -19,7 +19,7 @@
 
 <script>
 const SUPABASE_URL = "https://eacnastpvwjwngvrpilk.supabase.co"
-const SUPABASE_KEY = "sb_publishable_cU45-75Obett_5aHh..." // GANTI PAKE KEY KAMU YG LENGKAP
+const SUPABASE_KEY = "sb_publishable_cU45-75Obett_5aHhyLZkA_E7cFvupK"
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
 const tg = window.Telegram.WebApp;
@@ -30,10 +30,9 @@ let mining = false;
 let interval;
 
 async function loadUser() {
-  let { data } = await supabase.from('users').select('*').eq('user_id', user.id).single();
+  let { data } = await supabase.from('userAst2').select('*').eq('user_id', user.id).single();
   if (!data) {
-    await supabase.from('users').insert({ user_id: user.id, username: user.username });
-  } else {
+    await supabase.from('userAst2').insert({ user_id: user.id, username: user.username, balance: 0 });
     balance = data.balance;
   }
   document.getElementById('balance').innerText = balance.toFixed(2) + " A2S";
@@ -46,8 +45,8 @@ document.getElementById('mineBtn').onclick = () => {
     interval = setInterval(async () => {
       balance += 0.1;
       document.getElementById('balance').innerText = balance.toFixed(2) + " A2S";
-      await supabase.from('users').update({ balance: balance }).eq('user_id', user.id);
-    }, 1000);
+      await supabase.from('userAst2').update({ balance: balance }).eq('user_id', user.id);
+    }, 10000);
   } else {
     clearInterval(interval);
   }
