@@ -31,10 +31,16 @@ let interval;
 
 async function loadUser() {
   let { data } = await supabase.from('userAst2').select('*').eq('user_id', user.id).single();
+  
   if (!data) {
+    // Kalau belum ada, insert baru dengan balance 0
     await supabase.from('userAst2').insert({ user_id: user.id, username: user.username, balance: 0 });
+    balance = 0; // <-- langsung set 0
+  } else {
+    // Kalau udah ada, ambil balance nya
     balance = data.balance;
   }
+  
   document.getElementById('balance').innerText = balance.toFixed(2) + " A2S";
 }
 
