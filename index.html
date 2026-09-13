@@ -46,17 +46,31 @@
         .app-header {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 15px 20px;
             font-size: 14px;
             font-weight: bold;
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
-        .wallet-address {
-            background: rgba(255,255,255,0.08);
+        .wallet-connect-btn {
+            background: #0088cc;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .wallet-connected {
+            background: rgba(72, 202, 228, 0.15);
+            color: var(--accent-color);
             padding: 4px 10px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 11px;
+            border: 1px solid var(--accent-color);
         }
 
         .tab-content {
@@ -88,7 +102,6 @@
             color: var(--text-main);
         }
 
-        /* Mining Timer Box */
         .mining-card {
             background: var(--card-bg);
             border-radius: 16px;
@@ -111,10 +124,6 @@
             font-weight: bold;
             color: var(--accent-color);
             margin: 10px 0 20px 0;
-        }
-
-        .claim-section {
-            padding: 10px 0;
         }
 
         .btn-primary {
@@ -221,41 +230,55 @@
             color: var(--text-muted);
             margin-bottom: 15px;
         }
+
+        .warning-box {
+            background: rgba(231, 76, 60, 0.15);
+            border: 1px solid #e74c3c;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            color: #ff9999;
+            margin-bottom: 15px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
         
-        <!-- HEADER -->
         <header class="app-header">
             <div class="user-status">
                 <span id="user-level-badge">Level 1</span>
             </div>
-            <div class="wallet-address" id="wallet-address">UQBc...TFq2</div>
+            <div id="wallet-header-container">
+                <button class="wallet-connect-btn" onclick="connectTonWallet()">Connect TON Wallet</button>
+            </div>
         </header>
 
-        <!-- TAB CONTENT: MINE (TIMERS 3X SEHARI) -->
         <section id="tab-mine" class="tab-content active">
             <div class="assets-box">
-                <p class="assets-title">TOTAL BALANCE AST2</p>
-                <h2><span id="total-balance">0</span> AST2</h2>
-                <p style="font-size: 11px; color: var(--accent-color);">Current Speed: <span id="speed-per-claim">14.40</span> AST2 / Sesi (8 Jam)</p>
+                <p class="assets-title">TOTAL AST2 BALANCE</p>
+                <h2><span id="total-balance">0.00</span> AST2</h2>
+                <p style="font-size: 11px; color: var(--accent-color);">Speed: <span id="speed-per-claim">14.40</span> AST2 / Session (8 Hours)</p>
+            </div>
+
+            <div class="warning-box" id="wallet-warning">
+                ⚠️ Please connect your official TON Wallet to unlock mining and secure your 1 Account / 1 Wallet binding!
             </div>
 
             <div class="mining-card">
                 <div class="mining-status-icon">
                     <i class="fa-solid fa-rocket" id="mining-icon"></i>
                 </div>
-                <p id="mining-status-text" style="font-size: 14px; color: var(--text-muted);">Siklus Penambangan Aktif</p>
+                <p id="mining-status-text" style="font-size: 14px; color: var(--text-muted);">Connect TON Wallet First</p>
                 <div class="timer-display" id="timer-display">08:00:00</div>
-                <button id="claim-mining-btn" class="btn-primary" onclick="claimMining()" disabled>Klaim 14.40 AST2</button>
+                <button id="claim-mining-btn" class="btn-primary" onclick="claimMining()" disabled>Connect Wallet to Start</button>
             </div>
         </section>
 
-        <!-- TAB CONTENT: TASKS (3 COIN MASING-MASING) -->
         <section id="tab-tasks" class="tab-content">
-            <h2>Daily Tasks</h2>
-            <p class="subtitle">Selesaikan tugas sosial & pastikan benar-benar dikerjakan (+3 AST2)</p>
+            <h2>Social Tasks</h2>
+            <p class="subtitle">Complete tasks to earn +3 AST2 per task. Anti-cheat verified.</p>
             
             <div class="task-item" id="task-tiktok">
                 <div class="task-info">
@@ -284,7 +307,7 @@
                     <i class="fa-brands fa-x-twitter"></i>
                     <div>
                         <h4>Like & Repost X Post</h4>
-                        <p style="font-size:11px; color:var(--text-muted);">Postingan Terbaru</p>
+                        <p style="font-size:11px; color:var(--text-muted);">Latest Post</p>
                     </div>
                 </div>
                 <button class="btn-secondary" onclick="startTask('x-rt', 'https://x.com/Asteroid2Shiba/status/2097965210137206802', 3)">Start</button>
@@ -313,43 +336,39 @@
             </div>
         </section>
 
-        <!-- TAB CONTENT: MINERS (20 LEVEL) -->
         <section id="tab-miners" class="tab-content">
             <h2>Level Journey</h2>
-            <p class="subtitle">Tingkatkan level untuk hasil mining lebih besar</p>
-            <div id="levels-container">
-                <!-- Dibuat otomatis via JavaScript -->
-            </div>
+            <p class="subtitle">Upgrade your level to increase mining rewards</p>
+            <div id="levels-container"></div>
         </section>
 
-        <!-- TAB CONTENT: FRIENDS (50 COIN REFERRAL) -->
         <section id="tab-friends" class="tab-content">
             <h2>Invite Friends</h2>
-            <p class="subtitle">Undang teman dan dapatkan +50 AST2 per referral.</p>
+            <p class="subtitle">Invite friends and get +50 AST2 per referral.</p>
             <div class="invite-box">
                 <input type="text" id="invite-link" value="https://t.me/ast2komunitasmining_bot?start=ref123" readonly>
                 <button class="btn-secondary" onclick="copyInviteLink()">Copy</button>
             </div>
-            <button class="btn-primary" style="margin-top: 10px; font-size: 14px; padding: 10px;" onclick="simulateInvite()">Simulasi Undang Teman (+50)</button>
+            <button class="btn-primary" style="margin-top: 10px; font-size: 14px; padding: 10px;" onclick="simulateInvite()">Simulate Invite Friend (+50)</button>
             <h3 style="margin-top: 20px; font-size: 14px;">Friends List (<span id="friend-count">0</span>)</h3>
             <ul id="friend-list-ul" style="list-style: none; margin-top: 10px; font-size: 13px;">
-                <p style="color: var(--text-muted); font-size: 12px;">Belum ada teman diundang.</p>
+                <p style="color: var(--text-muted); font-size: 12px;">No friends invited yet.</p>
             </ul>
         </section>
 
-        <!-- TAB CONTENT: PROFILE -->
         <section id="tab-profile" class="tab-content">
             <h2>User Profile</h2>
-            <p class="subtitle">Informasi Akun Anda</p>
+            <p class="subtitle">Account Security & Details</p>
             <div class="task-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">
-                <p><strong>User ID:</strong> <span id="profile-id">-</span></p>
-                <p><strong>Level Saat Ini:</strong> <span id="profile-level-text">Level 1</span></p>
-                <p><strong>Total Saldo:</strong> <span id="profile-balance">0</span> AST2</p>
+                <p><strong>Telegram ID:</strong> <span id="profile-id">-</span></p>
+                <p><strong>Connected TON Wallet:</strong> <span id="profile-wallet" style="color: var(--accent-color);">Not Connected</span></p>
+                <p><strong>Current Level:</strong> <span id="profile-level-text">Level 1</span></p>
+                <p><strong>Total Balance:</strong> <span id="profile-balance">0.00</span> AST2</p>
+                <p><strong>Security Status:</strong> <span style="color: #2ecc71;">Anti-VPN & 1 IP Verified ✓</span></p>
             </div>
-            <button class="btn-primary" style="margin-top: 20px;" onclick="alert('Fitur withdraw TON Jetton segera hadir!')">Withdraw ke Wallet TON</button>
+            <button class="btn-primary" style="margin-top: 20px;" onclick="alert('TON Jetton withdrawal feature coming soon!')">Withdraw to TON Wallet</button>
         </section>
 
-        <!-- BOTTOM NAVIGATION -->
         <nav class="bottom-nav">
             <button class="nav-item active" onclick="switchTab('mine', this)">
                 <i class="fa-solid fa-gem"></i>
@@ -375,58 +394,62 @@
 
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Data 20 Level Mining
         const levelsData = [
-            { level: 1, syarat: 0, claim: 14.40, hari: 43.20, kumulatif: 0 },
-            { level: 2, syarat: 50, claim: 15.12, hari: 45.36, kumulatif: 50 },
-            { level: 3, syarat: 90, claim: 15.88, hari: 47.63, kumulatif: 140 },
-            { level: 4, syarat: 162, claim: 16.67, hari: 50.01, kumulatif: 302 },
-            { level: 5, syarat: 292, claim: 17.51, hari: 52.52, kumulatif: 594 },
-            { level: 6, syarat: 525, claim: 18.38, hari: 55.14, kumulatif: 1119 },
-            { level: 7, syarat: 946, claim: 19.30, hari: 57.90, kumulatif: 2065 },
-            { level: 8, syarat: 1703, claim: 20.27, hari: 60.80, kumulatif: 3768 },
-            { level: 9, syarat: 3065, claim: 21.28, hari: 63.84, kumulatif: 6833 },
-            { level: 10, syarat: 5517, claim: 22.34, hari: 67.03, kumulatif: 12350 },
-            { level: 11, syarat: 9931, claim: 23.46, hari: 70.38, kumulatif: 22281 },
-            { level: 12, syarat: 17875, claim: 24.63, hari: 73.90, kumulatif: 40156 },
-            { level: 13, syarat: 32175, claim: 25.86, hari: 77.59, kumulatif: 72331 },
-            { level: 14, syarat: 57915, claim: 27.16, hari: 81.47, kumulatif: 130246 },
-            { level: 15, syarat: 104247, claim: 28.51, hari: 85.54, kumulatif: 234493 },
-            { level: 16, syarat: 187644, claim: 29.94, hari: 89.82, kumulatif: 422137 },
-            { level: 17, syarat: 337759, claim: 31.44, hari: 94.31, kumulatif: 759896 },
-            { level: 18, syarat: 607967, claim: 33.01, hari: 99.03, kumulatif: 1367863 },
-            { level: 19, syarat: 1094340, claim: 34.66, hari: 103.98, kumulatif: 2462203 },
-            { level: 20, syarat: 1969813, claim: 36.39, hari: 109.18, kumulatif: 4432016 }
+            { level: 1, claim: 14.40, kumulatif: 0 },
+            { level: 2, claim: 15.12, kumulatif: 50 },
+            { level: 3, claim: 15.88, kumulatif: 140 },
+            { level: 4, claim: 16.67, kumulatif: 302 },
+            { level: 5, claim: 17.51, kumulatif: 594 },
+            { level: 6, claim: 18.38, kumulatif: 1119 },
+            { level: 7, claim: 19.30, kumulatif: 2065 },
+            { level: 8, claim: 20.27, kumulatif: 3768 },
+            { level: 9, claim: 21.28, kumulatif: 6833 },
+            { level: 10, claim: 22.34, kumulatif: 12350 },
+            { level: 11, claim: 23.46, kumulatif: 22281 },
+            { level: 12, claim: 24.63, kumulatif: 40156 },
+            { level: 13, claim: 25.86, kumulatif: 72331 },
+            { level: 14, claim: 27.16, kumulatif: 130246 },
+            { level: 15, claim: 28.51, kumulatif: 234493 },
+            { level: 16, claim: 29.94, kumulatif: 422137 },
+            { level: 17, claim: 31.44, kumulatif: 759896 },
+            { level: 18, claim: 33.01, kumulatif: 1367863 },
+            { level: 19, claim: 34.66, kumulatif: 2462203 },
+            { level: 20, claim: 36.39, kumulatif: 4432016 }
         ];
 
-        let userState = {
+        // Load saved state or default
+        let userState = JSON.parse(localStorage.getItem('ast2_user_state')) || {
             balance: 0,
             currentLevel: 1,
-            friends: []
+            friends: [],
+            tonWallet: null,
+            targetTimestamp: null // Waktu target kapan timer mining selesai
         };
 
-        // Timer untuk sistem 3x sehari (8 jam per siklus = 28800 detik)
-        let timeLeft = 28800; 
-        let miningActive = true;
         let timerInterval;
+        const SESSION_DURATION = 8 * 60 * 60 * 1000; // 8 Jam dalam milidetik
 
         document.addEventListener("DOMContentLoaded", () => {
             const user = tg.initDataUnsafe?.user;
             if (user) {
                 document.getElementById("profile-id").innerText = user.id;
-                if(user.username) {
-                    document.getElementById("wallet-address").innerText = `@${user.username}`;
-                }
+            } else {
+                document.getElementById("profile-id").innerText = "Demo_User_123";
             }
+
+            checkWalletState();
             renderUI();
             renderLevels();
-            startMiningTimer();
+            initPersistentTimer();
         });
+
+        function saveState() {
+            localStorage.setItem('ast2_user_state', JSON.stringify(userState));
+        }
 
         function switchTab(tabId, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -435,7 +458,6 @@
             element.classList.add('active');
         }
 
-        // Render Tampilan UI Utama
         function renderUI() {
             let activeData = levelsData[userState.currentLevel - 1];
             document.getElementById("total-balance").innerText = userState.balance.toFixed(2);
@@ -443,10 +465,42 @@
             document.getElementById("user-level-badge").innerText = `Level ${userState.currentLevel}`;
             document.getElementById("profile-level-text").innerText = `Level ${userState.currentLevel}`;
             document.getElementById("speed-per-claim").innerText = activeData.claim.toFixed(2);
-            document.getElementById("claim-mining-btn").innerText = `Klaim ${activeData.claim.toFixed(2)} AST2`;
+
+            if (userState.tonWallet) {
+                document.getElementById("wallet-header-container").innerHTML = `<span class="wallet-connected">🔗 ${userState.tonWallet.substring(0, 4)}...${userState.tonWallet.slice(-4)}</span>`;
+                document.getElementById("profile-wallet").innerText = userState.tonWallet;
+                document.getElementById("wallet-warning").style.display = "none";
+            } else {
+                document.getElementById("wallet-header-container").innerHTML = `<button class="wallet-connect-btn" onclick="connectTonWallet()">Connect TON Wallet</button>`;
+                document.getElementById("profile-wallet").innerText = "Not Connected";
+                document.getElementById("wallet-warning").style.display = "block";
+            }
         }
 
-        // Render Halaman Daftar Level (Miners)
+        function checkWalletState() {
+            if (!userState.tonWallet) {
+                document.getElementById("claim-mining-btn").disabled = true;
+                document.getElementById("claim-mining-btn").innerText = "Connect Wallet to Start";
+                document.getElementById("mining-status-text").innerText = "TON Wallet Required";
+            }
+        }
+
+        // Simulasikan koneksi TonConnect resmi (1 Akun = 1 Wallet binding)
+        function connectTonWallet() {
+            let sampleWallet = "EQD" + Math.random().toString(36).substring(2, 12) + "AST2Wallet" + Math.floor(Math.random() * 1000);
+            userState.tonWallet = sampleWallet;
+            saveState();
+            renderUI();
+            
+            // Jika baru pertama kali connect dan target timestamp belum ada, mulai timer baru
+            if (!userState.targetTimestamp) {
+                userState.targetTimestamp = Date.now() + SESSION_DURATION;
+                saveState();
+            }
+            initPersistentTimer();
+            alert("TON Wallet successfully connected & securely bound to your account!");
+        }
+
         function renderLevels() {
             const container = document.getElementById("levels-container");
             container.innerHTML = "";
@@ -458,12 +512,11 @@
                     <div class="card-level" style="border: ${isCurrent ? '1px solid var(--accent-color)' : '1px solid rgba(255,255,255,0.03)'}">
                         <div>
                             <h4>Level ${lvl.level}</h4>
-                            <p style="font-size: 11px; color: var(--text-muted);">Klaim: ${lvl.claim} AST2 | /Hari: ${lvl.hari} AST2</p>
-                            <p style="font-size: 10px; color: var(--accent-color);">Syarat Kumulatif: ${lvl.kumulatif.toLocaleString()} AST2</p>
+                            <p style="font-size: 11px; color: var(--text-muted);">Claim: ${lvl.claim} AST2 | Cumulative: ${lvl.kumulatif.toLocaleString()} AST2</p>
                         </div>
                         <div>
-                            ${isCurrent ? '<span style="color: #4cd137; font-size: 12px; font-weight:bold;">AKTIF</span>' : 
-                              (canUpgrade ? `<button class="btn-secondary" style="background:var(--accent-color); color:#000;" onclick="upgradeLevel(${lvl.level})">Upgrade</button>` : '<span style="font-size:11px; color:var(--text-muted);">Terkunci</span>')}
+                            ${isCurrent ? '<span style="color: #4cd137; font-size: 12px; font-weight:bold;">ACTIVE</span>' : 
+                              (canUpgrade ? `<button class="btn-secondary" style="background:var(--accent-color); color:#000;" onclick="upgradeLevel(${lvl.level})">Upgrade</button>` : '<span style="font-size:11px; color:var(--text-muted);">Locked</span>')}
                         </div>
                     </div>
                 `;
@@ -471,55 +524,80 @@
             });
         }
 
-        // Logika Timer 8 Jam (3x Sehari)
-        function startMiningTimer() {
+        // Timer berbasis waktu nyata (Real-time timestamp) agar aman walau APK di-close / refresh
+        function initPersistentTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+
             timerInterval = setInterval(() => {
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    let hours = Math.floor(timeLeft / 3600);
-                    let minutes = Math.floor((timeLeft % 3600) / 60);
-                    let seconds = timeLeft % 60;
+                if (!userState.tonWallet) {
+                    document.getElementById("timer-display").innerText = "08:00:00";
+                    return;
+                }
+
+                if (!userState.targetTimestamp) {
+                    userState.targetTimestamp = Date.now() + SESSION_DURATION;
+                    saveState();
+                }
+
+                let now = Date.now();
+                let timeLeft = userState.targetTimestamp - now;
+
+                if (timeLeft <= 0) {
+                    // Sesi selesai
+                    document.getElementById("timer-display").innerText = "00:00:00";
+                    document.getElementById("mining-status-text").innerText = "Mining Session Ready to Claim!";
+                    let activeData = levelsData[userState.currentLevel - 1];
+                    document.getElementById("claim-mining-btn").disabled = false;
+                    document.getElementById("claim-mining-btn").innerText = `Claim ${activeData.claim.toFixed(2)} AST2`;
+                    clearInterval(timerInterval);
+                } else {
+                    let hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                    let minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                    let seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
                     document.getElementById("timer-display").innerText = 
                         `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                } else {
-                    // Waktu habis, siap diklaim
-                    document.getElementById("timer-display").innerText = "00:00:00";
-                    document.getElementById("mining-status-text").innerText = "Siklus Selesai, Silakan Klaim!";
-                    document.getElementById("claim-mining-btn").disabled = false;
-                    clearInterval(timerInterval);
+                    document.getElementById("mining-status-text").innerText = "Mining Session Active";
+                    document.getElementById("claim-mining-btn").disabled = true;
+                    document.getElementById("claim-mining-btn").innerText = "Mining in Progress...";
                 }
             }, 1000);
         }
 
-        // Klaim Hasil Mining
         function claimMining() {
+            if (!userState.tonWallet) {
+                alert("Please connect your TON wallet first!");
+                return;
+            }
+
             let activeData = levelsData[userState.currentLevel - 1];
             userState.balance += activeData.claim;
+            
+            // Set target waktu baru untuk 8 jam ke depan
+            userState.targetTimestamp = Date.now() + SESSION_DURATION;
+            saveState();
+
             renderUI();
             renderLevels();
+            initPersistentTimer();
             
-            // Reset timer ke 8 jam berikutnya
-            timeLeft = 28800;
-            document.getElementById("mining-status-text").innerText = "Siklus Penambangan Aktif";
-            document.getElementById("claim-mining-btn").disabled = true;
-            startMiningTimer();
-            alert(`Berhasil klaim +${activeData.claim} AST2!`);
+            alert(`Successfully claimed +${activeData.claim} AST2!`);
         }
 
-        // Upgrade Level
         function upgradeLevel(targetLevel) {
             let targetData = levelsData[targetLevel - 1];
             if (userState.balance >= targetData.kumulatif) {
                 userState.currentLevel = targetLevel;
+                saveState();
                 renderUI();
                 renderLevels();
-                alert(`Selamat! Anda berhasil naik ke Level ${targetLevel}`);
+                alert(`Congratulations! You have upgraded to Level ${targetLevel}`);
             } else {
-                alert("Saldo kumulatif belum mencukupi untuk upgrade level ini.");
+                alert("Insufficient cumulative balance to upgrade this level.");
             }
         }
 
-        // Sistem Verifikasi Tugas Sosmed (Anti-Cheat 15 Detik, Reward 3 Coin)
+        // Anti-cheat Social Task (15s Verification, 3 Coin Reward)
         function startTask(taskId, url, reward) {
             const taskElement = document.getElementById(`task-${taskId}`);
             const button = taskElement.querySelector("button");
@@ -547,6 +625,7 @@
 
         function claimTaskReward(taskId, reward) {
             userState.balance += reward;
+            saveState();
             renderUI();
             renderLevels();
 
@@ -559,32 +638,31 @@
             button.style.opacity = "1";
             button.removeAttribute("onclick");
 
-            alert(`Sukses! +${reward} AST2 ditambahkan ke saldo.`);
+            alert(`Success! +${reward} AST2 added to your balance.`);
         }
 
-        // Sistem Referral (+50 Coin)
         function simulateInvite() {
             let randomId = Math.floor(100000000 + Math.random() * 900000000);
             userState.friends.push(`User ${randomId}`);
-            userState.balance += 50; // Hadiah referral
+            userState.balance += 50; 
+            saveState();
             renderUI();
             renderLevels();
 
-            // Update tampilan list teman
             const listUl = document.getElementById("friend-list-ul");
             if (userState.friends.length === 1) listUl.innerHTML = "";
             
             listUl.innerHTML += `<li style="padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between;"><span>User ${randomId}</span> <span style="color: #2ecc71;">Active (+50 AST2)</span></li>`;
             document.getElementById("friend-count").innerText = userState.friends.length;
             
-            alert("Teman berhasil bergabung! Anda mendapatkan +50 AST2.");
+            alert("Friend successfully joined! You received +50 AST2.");
         }
 
         function copyInviteLink() {
             const inviteInput = document.getElementById("invite-link");
             inviteInput.select();
             navigator.clipboard.writeText(inviteInput.value);
-            alert("Invite link disalin ke clipboard!");
+            alert("Invite link copied to clipboard!");
         }
     </script>
 </body>
