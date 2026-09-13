@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asteroid2Shiba Mining</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- FontAwesome icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- CSS (Gaya Tampilan) -->
     <style>
         :root {
             --bg-color: #060d16;
@@ -75,7 +73,7 @@
 
         .assets-box {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .assets-title {
@@ -85,64 +83,38 @@
         }
 
         .assets-box h2 {
-            font-size: 28px;
+            font-size: 32px;
             margin: 5px 0;
             color: var(--text-main);
         }
 
-        .wallet-split {
-            font-size: 12px;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: center;
-            gap: 15px;
+        /* Mining Timer Box */
+        .mining-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px 20px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            margin: auto 0;
         }
 
-        .coin-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .mining-counter {
-            font-size: 22px;
-            font-weight: bold;
+        .mining-status-icon {
+            font-size: 50px;
             color: var(--accent-color);
             margin-bottom: 15px;
-            text-shadow: 0 0 10px var(--accent-glow);
+            text-shadow: 0 0 15px var(--accent-glow);
         }
 
-        .coin-wrapper {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #48cae4 0%, #03045e 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 35px var(--accent-glow);
-            animation: pulse 2s infinite;
-            cursor: pointer;
-        }
-
-        .coin-image {
-            width: 190px;
-            height: 190px;
-            object-fit: contain;
-            border-radius: 50%;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 20px var(--accent-glow); }
-            50% { transform: scale(1.03); box-shadow: 0 0 40px var(--accent-color); }
-            100% { transform: scale(1); box-shadow: 0 0 20px var(--accent-glow); }
+        .timer-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin: 10px 0 20px 0;
         }
 
         .claim-section {
-            padding: 15px 0;
+            padding: 10px 0;
         }
 
         .btn-primary {
@@ -158,6 +130,13 @@
             box-shadow: 0 4px 15px var(--accent-glow);
         }
 
+        .btn-primary:disabled {
+            background: #2c3e50;
+            color: #7f8c8d;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
         .btn-secondary {
             background: rgba(255,255,255,0.1);
             color: white;
@@ -166,6 +145,7 @@
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
+            font-size: 12px;
         }
 
         .bottom-nav {
@@ -249,141 +229,124 @@
         <!-- HEADER -->
         <header class="app-header">
             <div class="user-status">
-                <span id="user-level">Lvl 1 • READY</span>
+                <span id="user-level-badge">Level 1</span>
             </div>
             <div class="wallet-address" id="wallet-address">UQBc...TFq2</div>
         </header>
 
-        <!-- TAB CONTENT: MINE -->
+        <!-- TAB CONTENT: MINE (TIMERS 3X SEHARI) -->
         <section id="tab-mine" class="tab-content active">
             <div class="assets-box">
-                <p class="assets-title">ASSETS</p>
-                <h2><span id="total-ast2">2,000</span> AST2</h2>
-                <div class="wallet-split">
-                    <span>Holding: <strong id="holding-wallet">0</strong></span>
-                    <span>Pool: <strong id="pool-wallet">2,000</strong> AST2</span>
-                </div>
+                <p class="assets-title">TOTAL BALANCE AST2</p>
+                <h2><span id="total-balance">0</span> AST2</h2>
+                <p style="font-size: 11px; color: var(--accent-color);">Current Speed: <span id="speed-per-claim">14.40</span> AST2 / Sesi (8 Jam)</p>
             </div>
 
-            <div class="coin-container">
-                <div class="mining-counter" id="mining-counter">+0.20</div>
-                <div class="coin-wrapper" id="coin-click">
-                    <img src="https://i.ibb.co/DPGgvfyQ/1789225844455.png" alt="" class="coin-image">
+            <div class="mining-card">
+                <div class="mining-status-icon">
+                    <i class="fa-solid fa-rocket" id="mining-icon"></i>
                 </div>
-            </div>
-
-            <div class="claim-section">
-                <button id="claim-btn" class="btn-primary">CLAIM</button>
+                <p id="mining-status-text" style="font-size: 14px; color: var(--text-muted);">Siklus Penambangan Aktif</p>
+                <div class="timer-display" id="timer-display">08:00:00</div>
+                <button id="claim-mining-btn" class="btn-primary" onclick="claimMining()" disabled>Klaim 14.40 AST2</button>
             </div>
         </section>
 
-        <!-- TAB CONTENT: TASKS -->
+        <!-- TAB CONTENT: TASKS (3 COIN MASING-MASING) -->
         <section id="tab-tasks" class="tab-content">
             <h2>Daily Tasks</h2>
-            <p class="subtitle">Complete tasks to boost your AST2 pool</p>
+            <p class="subtitle">Selesaikan tugas sosial & pastikan benar-benar dikerjakan (+3 AST2)</p>
             
-            <!-- TikTok Follow -->
             <div class="task-item" id="task-tiktok">
                 <div class="task-info">
                     <i class="fa-brands fa-tiktok"></i>
                     <div>
-                        <h4>Follow TikTok</h4>
-                        <p>+15 AST2</p>
+                        <h4>TikTok Follow</h4>
+                        <p style="font-size:11px; color:var(--text-muted);">tiktok.com/@asteroid2shiba</p>
                     </div>
                 </div>
-                <button class="btn-secondary" onclick="startTask('tiktok', 'https://tiktok.com/@asteroid2shiba', 15)">Start</button>
+                <button class="btn-secondary" onclick="startTask('tiktok', 'https://tiktok.com/@asteroid2shiba', 3)">Start</button>
             </div>
 
-            <!-- X Follow -->
             <div class="task-item" id="task-x-follow">
                 <div class="task-info">
                     <i class="fa-brands fa-x-twitter"></i>
                     <div>
-                        <h4>Follow X (Twitter)</h4>
-                        <p>+15 AST2</p>
+                        <h4>X (Twitter) Follow</h4>
+                        <p style="font-size:11px; color:var(--text-muted);">x.com/Asteroid2Shiba</p>
                     </div>
                 </div>
-                <button class="btn-secondary" onclick="startTask('x-follow', 'https://x.com/Asteroid2Shiba', 15)">Start</button>
+                <button class="btn-secondary" onclick="startTask('x-follow', 'https://x.com/Asteroid2Shiba', 3)">Start</button>
             </div>
 
-            <!-- X Retweet & Like -->
             <div class="task-item" id="task-x-rt">
                 <div class="task-info">
                     <i class="fa-brands fa-x-twitter"></i>
                     <div>
                         <h4>Like & Repost X Post</h4>
-                        <p>+20 AST2</p>
+                        <p style="font-size:11px; color:var(--text-muted);">Postingan Terbaru</p>
                     </div>
                 </div>
-                <button class="btn-secondary" onclick="startTask('x-rt', 'https://x.com/Asteroid2Shiba/status/2097965210137206802', 20)">Start</button>
+                <button class="btn-secondary" onclick="startTask('x-rt', 'https://x.com/Asteroid2Shiba/status/2097965210137206802', 3)">Start</button>
             </div>
 
-            <!-- Telegram Channel -->
             <div class="task-item" id="task-tg">
                 <div class="task-info">
                     <i class="fa-brands fa-telegram"></i>
                     <div>
                         <h4>Join Telegram Channel</h4>
-                        <p>+20 AST2</p>
+                        <p style="font-size:11px; color:var(--text-muted);">t.me/asteroid2shiba</p>
                     </div>
                 </div>
-                <button class="btn-secondary" onclick="startTask('tg', 'https://t.me/asteroid2shiba', 20)">Start</button>
+                <button class="btn-secondary" onclick="startTask('tg', 'https://t.me/asteroid2shiba', 3)">Start</button>
             </div>
 
-            <!-- YouTube Subscribe -->
             <div class="task-item" id="task-yt">
                 <div class="task-info">
                     <i class="fa-brands fa-youtube"></i>
                     <div>
-                        <h4>Subscribe YouTube</h4>
-                        <p>+20 AST2</p>
+                        <h4>YouTube Subscribe</h4>
+                        <p style="font-size:11px; color:var(--text-muted);">youtube.com/@asteroid2shiba</p>
                     </div>
                 </div>
-                <button class="btn-secondary" onclick="startTask('yt', 'https://www.youtube.com/@asteroid2shiba', 20)">Start</button>
+                <button class="btn-secondary" onclick="startTask('yt', 'https://www.youtube.com/@asteroid2shiba', 3)">Start</button>
             </div>
         </section>
 
-        <!-- TAB CONTENT: MINERS -->
+        <!-- TAB CONTENT: MINERS (20 LEVEL) -->
         <section id="tab-miners" class="tab-content">
-            <h2>MY LEVEL JOURNEY</h2>
-            <p class="subtitle">Upgrade level to increase mining speed</p>
-            <div class="card-level">
-                <h3>Level 1 • Peak 192</h3>
-                <p>Speed: 0.20 AST2/klik</p>
-                <span style="color: #4cd137; font-weight: bold; font-size: 12px;">ACTIVE</span>
-            </div>
-            <div class="card-level">
-                <h3>Level 2 • Peak 500</h3>
-                <p>Speed: 0.50 AST2/klik</p>
-                <span style="color: var(--text-muted); font-size: 12px;">Need 500 AST2</span>
+            <h2>Level Journey</h2>
+            <p class="subtitle">Tingkatkan level untuk hasil mining lebih besar</p>
+            <div id="levels-container">
+                <!-- Dibuat otomatis via JavaScript -->
             </div>
         </section>
 
-        <!-- TAB CONTENT: FRIENDS -->
+        <!-- TAB CONTENT: FRIENDS (50 COIN REFERRAL) -->
         <section id="tab-friends" class="tab-content">
             <h2>Invite Friends</h2>
-            <p class="subtitle">Get mining speed bonuses from your referrals.</p>
+            <p class="subtitle">Undang teman dan dapatkan +50 AST2 per referral.</p>
             <div class="invite-box">
                 <input type="text" id="invite-link" value="https://t.me/ast2komunitasmining_bot?start=ref123" readonly>
                 <button class="btn-secondary" onclick="copyInviteLink()">Copy</button>
             </div>
-            <h3>Friends List (3)</h3>
-            <ul class="friend-list" style="list-style: none; margin-top: 10px; font-size: 13px;">
-                <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between;"><span>User 8216200317</span> <span style="color: #e74c3c;">Not Active</span></li>
-                <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between;"><span>Muminin</span> <span style="color: #2ecc71;">Active</span></li>
+            <button class="btn-primary" style="margin-top: 10px; font-size: 14px; padding: 10px;" onclick="simulateInvite()">Simulasi Undang Teman (+50)</button>
+            <h3 style="margin-top: 20px; font-size: 14px;">Friends List (<span id="friend-count">0</span>)</h3>
+            <ul id="friend-list-ul" style="list-style: none; margin-top: 10px; font-size: 13px;">
+                <p style="color: var(--text-muted); font-size: 12px;">Belum ada teman diundang.</p>
             </ul>
         </section>
 
         <!-- TAB CONTENT: PROFILE -->
         <section id="tab-profile" class="tab-content">
             <h2>User Profile</h2>
-            <p class="subtitle">Account information & wallet status</p>
+            <p class="subtitle">Informasi Akun Anda</p>
             <div class="task-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">
                 <p><strong>User ID:</strong> <span id="profile-id">-</span></p>
-                <p><strong>Status:</strong> <span style="color: #4cd137;">Verified ✓</span></p>
-                <p><strong>Total Balance:</strong> <span id="profile-balance">2,000</span> AST2</p>
+                <p><strong>Level Saat Ini:</strong> <span id="profile-level-text">Level 1</span></p>
+                <p><strong>Total Saldo:</strong> <span id="profile-balance">0</span> AST2</p>
             </div>
-            <button class="btn-primary" style="margin-top: 20px;" onclick="alert('Withdrawal feature coming soon!')">Withdraw to Wallet</button>
+            <button class="btn-primary" style="margin-top: 20px;" onclick="alert('Fitur withdraw TON Jetton segera hadir!')">Withdraw ke Wallet TON</button>
         </section>
 
         <!-- BOTTOM NAVIGATION -->
@@ -412,38 +375,46 @@
 
     </div>
 
-    <!-- JavaScript (Logika Aplikasi) -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // State Aplikasi Utama
+        // Data 20 Level Mining
+        const levelsData = [
+            { level: 1, syarat: 0, claim: 14.40, hari: 43.20, kumulatif: 0 },
+            { level: 2, syarat: 50, claim: 15.12, hari: 45.36, kumulatif: 50 },
+            { level: 3, syarat: 90, claim: 15.88, hari: 47.63, kumulatif: 140 },
+            { level: 4, syarat: 162, claim: 16.67, hari: 50.01, kumulatif: 302 },
+            { level: 5, syarat: 292, claim: 17.51, hari: 52.52, kumulatif: 594 },
+            { level: 6, syarat: 525, claim: 18.38, hari: 55.14, kumulatif: 1119 },
+            { level: 7, syarat: 946, claim: 19.30, hari: 57.90, kumulatif: 2065 },
+            { level: 8, syarat: 1703, claim: 20.27, hari: 60.80, kumulatif: 3768 },
+            { level: 9, syarat: 3065, claim: 21.28, hari: 63.84, kumulatif: 6833 },
+            { level: 10, syarat: 5517, claim: 22.34, hari: 67.03, kumulatif: 12350 },
+            { level: 11, syarat: 9931, claim: 23.46, hari: 70.38, kumulatif: 22281 },
+            { level: 12, syarat: 17875, claim: 24.63, hari: 73.90, kumulatif: 40156 },
+            { level: 13, syarat: 32175, claim: 25.86, hari: 77.59, kumulatif: 72331 },
+            { level: 14, syarat: 57915, claim: 27.16, hari: 81.47, kumulatif: 130246 },
+            { level: 15, syarat: 104247, claim: 28.51, hari: 85.54, kumulatif: 234493 },
+            { level: 16, syarat: 187644, claim: 29.94, hari: 89.82, kumulatif: 422137 },
+            { level: 17, syarat: 337759, claim: 31.44, hari: 94.31, kumulatif: 759896 },
+            { level: 18, syarat: 607967, claim: 33.01, hari: 99.03, kumulatif: 1367863 },
+            { level: 19, syarat: 1094340, claim: 34.66, hari: 103.98, kumulatif: 2462203 },
+            { level: 20, syarat: 1969813, claim: 36.39, hari: 109.18, kumulatif: 4432016 }
+        ];
+
         let userState = {
-            balance: 2000,
-            holding: 0,
-            pool: 2000,
-            level: 1
+            balance: 0,
+            currentLevel: 1,
+            friends: []
         };
 
-        const levelConfig = {
-            1: { speed: 0.20 },
-            2: { speed: 0.50 },
-            3: { speed: 1.20 }
-        };
+        // Timer untuk sistem 3x sehari (8 jam per siklus = 28800 detik)
+        let timeLeft = 28800; 
+        let miningActive = true;
+        let timerInterval;
 
-        // Fungsi Pindah Tab
-        function switchTab(tabId, element) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.nav-item').forEach(nav => {
-                nav.classList.remove('active');
-            });
-            document.getElementById(`tab-${tabId}`).classList.add('active');
-            element.classList.add('active');
-        }
-
-        // Inisialisasi Data Telegram User
         document.addEventListener("DOMContentLoaded", () => {
             const user = tg.initDataUnsafe?.user;
             if (user) {
@@ -452,49 +423,120 @@
                     document.getElementById("wallet-address").innerText = `@${user.username}`;
                 }
             }
+            renderUI();
+            renderLevels();
+            startMiningTimer();
         });
 
-        // Sistem Interaksi Klik Mining
-        document.getElementById("coin-click").addEventListener("click", () => {
-            let currentSpeed = levelConfig[userState.level].speed;
-            userState.pool += currentSpeed;
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            element.classList.add('active');
+        }
+
+        // Render Tampilan UI Utama
+        function renderUI() {
+            let activeData = levelsData[userState.currentLevel - 1];
+            document.getElementById("total-balance").innerText = userState.balance.toFixed(2);
+            document.getElementById("profile-balance").innerText = userState.balance.toFixed(2);
+            document.getElementById("user-level-badge").innerText = `Level ${userState.currentLevel}`;
+            document.getElementById("profile-level-text").innerText = `Level ${userState.currentLevel}`;
+            document.getElementById("speed-per-claim").innerText = activeData.claim.toFixed(2);
+            document.getElementById("claim-mining-btn").innerText = `Klaim ${activeData.claim.toFixed(2)} AST2`;
+        }
+
+        // Render Halaman Daftar Level (Miners)
+        function renderLevels() {
+            const container = document.getElementById("levels-container");
+            container.innerHTML = "";
+            levelsData.forEach((lvl) => {
+                let isCurrent = lvl.level === userState.currentLevel;
+                let canUpgrade = userState.balance >= lvl.kumulatif && !isCurrent && lvl.level > userState.currentLevel;
+                
+                let html = `
+                    <div class="card-level" style="border: ${isCurrent ? '1px solid var(--accent-color)' : '1px solid rgba(255,255,255,0.03)'}">
+                        <div>
+                            <h4>Level ${lvl.level}</h4>
+                            <p style="font-size: 11px; color: var(--text-muted);">Klaim: ${lvl.claim} AST2 | /Hari: ${lvl.hari} AST2</p>
+                            <p style="font-size: 10px; color: var(--accent-color);">Syarat Kumulatif: ${lvl.kumulatif.toLocaleString()} AST2</p>
+                        </div>
+                        <div>
+                            ${isCurrent ? '<span style="color: #4cd137; font-size: 12px; font-weight:bold;">AKTIF</span>' : 
+                              (canUpgrade ? `<button class="btn-secondary" style="background:var(--accent-color); color:#000;" onclick="upgradeLevel(${lvl.level})">Upgrade</button>` : '<span style="font-size:11px; color:var(--text-muted);">Terkunci</span>')}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // Logika Timer 8 Jam (3x Sehari)
+        function startMiningTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    let hours = Math.floor(timeLeft / 3600);
+                    let minutes = Math.floor((timeLeft % 3600) / 60);
+                    let seconds = timeLeft % 60;
+                    document.getElementById("timer-display").innerText = 
+                        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                } else {
+                    // Waktu habis, siap diklaim
+                    document.getElementById("timer-display").innerText = "00:00:00";
+                    document.getElementById("mining-status-text").innerText = "Siklus Selesai, Silakan Klaim!";
+                    document.getElementById("claim-mining-btn").disabled = false;
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+        }
+
+        // Klaim Hasil Mining
+        function claimMining() {
+            let activeData = levelsData[userState.currentLevel - 1];
+            userState.balance += activeData.claim;
+            renderUI();
+            renderLevels();
             
-            document.getElementById("pool-wallet").innerText = userState.pool.toFixed(4);
-            document.getElementById("total-ast2").innerText = userState.pool.toFixed(0);
-            document.getElementById("profile-balance").innerText = userState.pool.toFixed(0);
-        });
+            // Reset timer ke 8 jam berikutnya
+            timeLeft = 28800;
+            document.getElementById("mining-status-text").innerText = "Siklus Penambangan Aktif";
+            document.getElementById("claim-mining-btn").disabled = true;
+            startMiningTimer();
+            alert(`Berhasil klaim +${activeData.claim} AST2!`);
+        }
 
-        // Tombol Claim Pool ke Holding
-        document.getElementById("claim-btn").addEventListener("click", () => {
-            if (userState.pool <= userState.holding) {
-                alert("Belum ada saldo baru untuk di-claim!");
-                return;
+        // Upgrade Level
+        function upgradeLevel(targetLevel) {
+            let targetData = levelsData[targetLevel - 1];
+            if (userState.balance >= targetData.kumulatif) {
+                userState.currentLevel = targetLevel;
+                renderUI();
+                renderLevels();
+                alert(`Selamat! Anda berhasil naik ke Level ${targetLevel}`);
+            } else {
+                alert("Saldo kumulatif belum mencukupi untuk upgrade level ini.");
             }
-            userState.holding = userState.pool;
-            document.getElementById("holding-wallet").innerText = userState.holding.toFixed(2);
-            alert("Berhasil claim AST2 ke holding wallet!");
-        });
+        }
 
-        // Sistem Verifikasi Tugas Sosmed Anti-Cheat (Timer 15 Detik)
+        // Sistem Verifikasi Tugas Sosmed (Anti-Cheat 15 Detik, Reward 3 Coin)
         function startTask(taskId, url, reward) {
             const taskElement = document.getElementById(`task-${taskId}`);
             const button = taskElement.querySelector("button");
 
-            // Buka link tugas ke platform eksternal
             window.open(url, '_blank');
 
-            // Kunci tombol dan hitung mundur 15 detik
-            let timeLeft = 15;
+            let remaining = 15;
             button.disabled = true;
             button.style.opacity = "0.6";
-            button.innerText = `Checking (${timeLeft}s)...`;
+            button.innerText = `Checking (${remaining}s)...`;
 
-            let timer = setInterval(() => {
-                timeLeft--;
-                if (timeLeft > 0) {
-                    button.innerText = `Checking (${timeLeft}s)...`;
+            let checkInterval = setInterval(() => {
+                remaining--;
+                if (remaining > 0) {
+                    button.innerText = `Checking (${remaining}s)...`;
                 } else {
-                    clearInterval(timer);
+                    clearInterval(checkInterval);
                     button.innerText = "Claim";
                     button.disabled = false;
                     button.style.opacity = "1";
@@ -503,12 +545,10 @@
             }, 1000);
         }
 
-        // Klaim Reward Tugas Setelah Waktu Selesai
         function claimTaskReward(taskId, reward) {
-            userState.pool += reward;
-            document.getElementById("pool-wallet").innerText = userState.pool.toFixed(4);
-            document.getElementById("total-ast2").innerText = userState.pool.toFixed(0);
-            document.getElementById("profile-balance").innerText = userState.pool.toFixed(0);
+            userState.balance += reward;
+            renderUI();
+            renderLevels();
 
             const taskElement = document.getElementById(`task-${taskId}`);
             const button = taskElement.querySelector("button");
@@ -519,15 +559,32 @@
             button.style.opacity = "1";
             button.removeAttribute("onclick");
 
-            alert(`Berhasil! Selamat, +${reward} AST2 telah ditambahkan ke pool Anda.`);
+            alert(`Sukses! +${reward} AST2 ditambahkan ke saldo.`);
         }
 
-        // Fungsi Salin Link Referral
+        // Sistem Referral (+50 Coin)
+        function simulateInvite() {
+            let randomId = Math.floor(100000000 + Math.random() * 900000000);
+            userState.friends.push(`User ${randomId}`);
+            userState.balance += 50; // Hadiah referral
+            renderUI();
+            renderLevels();
+
+            // Update tampilan list teman
+            const listUl = document.getElementById("friend-list-ul");
+            if (userState.friends.length === 1) listUl.innerHTML = "";
+            
+            listUl.innerHTML += `<li style="padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between;"><span>User ${randomId}</span> <span style="color: #2ecc71;">Active (+50 AST2)</span></li>`;
+            document.getElementById("friend-count").innerText = userState.friends.length;
+            
+            alert("Teman berhasil bergabung! Anda mendapatkan +50 AST2.");
+        }
+
         function copyInviteLink() {
             const inviteInput = document.getElementById("invite-link");
             inviteInput.select();
             navigator.clipboard.writeText(inviteInput.value);
-            alert("Invite link copied to clipboard!");
+            alert("Invite link disalin ke clipboard!");
         }
     </script>
 </body>
