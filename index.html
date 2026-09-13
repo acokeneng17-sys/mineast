@@ -246,6 +246,7 @@
 <body>
     <div class="app-container">
         
+        <!-- HEADER -->
         <header class="app-header">
             <div class="user-status">
                 <span id="user-level-badge">Level 1</span>
@@ -255,6 +256,7 @@
             </div>
         </header>
 
+        <!-- TAB CONTENT: MINE -->
         <section id="tab-mine" class="tab-content active">
             <div class="assets-box">
                 <p class="assets-title">TOTAL AST2 BALANCE</p>
@@ -276,6 +278,7 @@
             </div>
         </section>
 
+        <!-- TAB CONTENT: TASKS -->
         <section id="tab-tasks" class="tab-content">
             <h2>Social Tasks</h2>
             <p class="subtitle">Complete tasks to earn +3 AST2 per task. Anti-cheat verified.</p>
@@ -336,26 +339,29 @@
             </div>
         </section>
 
+        <!-- TAB CONTENT: MINERS -->
         <section id="tab-miners" class="tab-content">
             <h2>Level Journey</h2>
             <p class="subtitle">Upgrade your level to increase mining rewards</p>
             <div id="levels-container"></div>
         </section>
 
+        <!-- TAB CONTENT: FRIENDS -->
         <section id="tab-friends" class="tab-content">
             <h2>Invite Friends</h2>
-            <p class="subtitle">Invite friends and get +50 AST2 per referral.</p>
+            <p class="subtitle">Share your link and invite friends to join Asteroid2Shiba.</p>
             <div class="invite-box">
-                <input type="text" id="invite-link" value="https://t.me/ast2komunitasmining_bot?start=ref123" readonly>
+                <input type="text" id="invite-link" readonly>
                 <button class="btn-secondary" onclick="copyInviteLink()">Copy</button>
             </div>
-            <button class="btn-primary" style="margin-top: 10px; font-size: 14px; padding: 10px;" onclick="simulateInvite()">Simulate Invite Friend (+50)</button>
-            <h3 style="margin-top: 20px; font-size: 14px;">Friends List (<span id="friend-count">0</span>)</h3>
+            <button class="btn-primary" style="margin-top: 10px; font-size: 14px; padding: 12px;" onclick="shareInviteLink()"><i class="fa-brands fa-telegram"></i> Share to Telegram Friends</button>
+            <h3 style="margin-top: 25px; font-size: 14px;">Invited Friends (<span id="friend-count">0</span>)</h3>
             <ul id="friend-list-ul" style="list-style: none; margin-top: 10px; font-size: 13px;">
-                <p style="color: var(--text-muted); font-size: 12px;">No friends invited yet.</p>
+                <p style="color: var(--text-muted); font-size: 12px;">No friends invited yet. Start sharing your link!</p>
             </ul>
         </section>
 
+        <!-- TAB CONTENT: PROFILE -->
         <section id="tab-profile" class="tab-content">
             <h2>User Profile</h2>
             <p class="subtitle">Account Security & Details</p>
@@ -369,6 +375,7 @@
             <button class="btn-primary" style="margin-top: 20px;" onclick="alert('TON Jetton withdrawal feature coming soon!')">Withdraw to TON Wallet</button>
         </section>
 
+        <!-- BOTTOM NAVIGATION -->
         <nav class="bottom-nav">
             <button class="nav-item active" onclick="switchTab('mine', this)">
                 <i class="fa-solid fa-gem"></i>
@@ -394,6 +401,7 @@
 
     </div>
 
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
@@ -421,29 +429,34 @@
             { level: 20, claim: 36.39, kumulatif: 4432016 }
         ];
 
-        // Load saved state or default
         let userState = JSON.parse(localStorage.getItem('ast2_user_state')) || {
             balance: 0,
             currentLevel: 1,
             friends: [],
             tonWallet: null,
-            targetTimestamp: null // Waktu target kapan timer mining selesai
+            targetTimestamp: null
         };
 
         let timerInterval;
-        const SESSION_DURATION = 8 * 60 * 60 * 1000; // 8 Jam dalam milidetik
+        const SESSION_DURATION = 8 * 60 * 60 * 1000;
+        let userTelegramId = "Demo_User_123";
 
         document.addEventListener("DOMContentLoaded", () => {
             const user = tg.initDataUnsafe?.user;
-            if (user) {
-                document.getElementById("profile-id").innerText = user.id;
-            } else {
-                document.getElementById("profile-id").innerText = "Demo_User_123";
+            if (user && user.id) {
+                userTelegramId = user.id;
             }
+            document.getElementById("profile-id").innerText = userTelegramId;
+
+            // Generate unique referral link based on user Telegram ID
+            const botUsername = "ast2mining_bot"; // Sesuaikan dengan username bot Anda jika berbeda
+            const refLink = `https://t.me/${botUsername}?start=ref_${userTelegramId}`;
+            document.getElementById("invite-link").value = refLink;
 
             checkWalletState();
             renderUI();
             renderLevels();
+            renderFriendsList();
             initPersistentTimer();
         });
 
@@ -485,14 +498,12 @@
             }
         }
 
-        // Simulasikan koneksi TonConnect resmi (1 Akun = 1 Wallet binding)
         function connectTonWallet() {
             let sampleWallet = "EQD" + Math.random().toString(36).substring(2, 12) + "AST2Wallet" + Math.floor(Math.random() * 1000);
             userState.tonWallet = sampleWallet;
             saveState();
             renderUI();
             
-            // Jika baru pertama kali connect dan target timestamp belum ada, mulai timer baru
             if (!userState.targetTimestamp) {
                 userState.targetTimestamp = Date.now() + SESSION_DURATION;
                 saveState();
@@ -524,7 +535,6 @@
             });
         }
 
-        // Timer berbasis waktu nyata (Real-time timestamp) agar aman walau APK di-close / refresh
         function initPersistentTimer() {
             if (timerInterval) clearInterval(timerInterval);
 
@@ -543,7 +553,6 @@
                 let timeLeft = userState.targetTimestamp - now;
 
                 if (timeLeft <= 0) {
-                    // Sesi selesai
                     document.getElementById("timer-display").innerText = "00:00:00";
                     document.getElementById("mining-status-text").innerText = "Mining Session Ready to Claim!";
                     let activeData = levelsData[userState.currentLevel - 1];
@@ -572,8 +581,6 @@
 
             let activeData = levelsData[userState.currentLevel - 1];
             userState.balance += activeData.claim;
-            
-            // Set target waktu baru untuk 8 jam ke depan
             userState.targetTimestamp = Date.now() + SESSION_DURATION;
             saveState();
 
@@ -597,7 +604,6 @@
             }
         }
 
-        // Anti-cheat Social Task (15s Verification, 3 Coin Reward)
         function startTask(taskId, url, reward) {
             const taskElement = document.getElementById(`task-${taskId}`);
             const button = taskElement.querySelector("button");
@@ -641,21 +647,27 @@
             alert(`Success! +${reward} AST2 added to your balance.`);
         }
 
-        function simulateInvite() {
-            let randomId = Math.floor(100000000 + Math.random() * 900000000);
-            userState.friends.push(`User ${randomId}`);
-            userState.balance += 50; 
-            saveState();
-            renderUI();
-            renderLevels();
+        // Fungsi asli untuk membuka menu Share Telegram agar bisa mengundang member nyata
+        function shareInviteLink() {
+            const inviteUrl = document.getElementById("invite-link").value;
+            const text = encodeURIComponent("🚀 Join Asteroid2Shiba Mining Community, mine AST2 tokens, and connect your TON wallet now!");
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteUrl)}&text=${text}`;
+            
+            // Membuka jendela share Telegram bawaan
+            window.open(shareUrl, '_blank');
+        }
 
+        function renderFriendsList() {
             const listUl = document.getElementById("friend-list-ul");
-            if (userState.friends.length === 1) listUl.innerHTML = "";
+            const countEl = document.getElementById("friend-count");
             
-            listUl.innerHTML += `<li style="padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between;"><span>User ${randomId}</span> <span style="color: #2ecc71;">Active (+50 AST2)</span></li>`;
-            document.getElementById("friend-count").innerText = userState.friends.length;
-            
-            alert("Friend successfully joined! You received +50 AST2.");
+            countEl.innerText = userState.friends.length;
+            if (userState.friends.length > 0) {
+                listUl.innerHTML = "";
+                userState.friends.forEach(friend => {
+                    listUl.innerHTML += `<li style="padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between;"><span>${friend}</span> <span style="color: #2ecc71;">Active (+50 AST2)</span></li>`;
+                });
+            }
         }
 
         function copyInviteLink() {
