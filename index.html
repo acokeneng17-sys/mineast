@@ -1,64 +1,409 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>AST2 Miner</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    body { background: #0d1117; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
-    .balance { font-size: 40px; font-weight: bold; color: #f7931a; }
-    button { background: #f7931a; color: black; border: none; padding: 15px 30px; font-size: 18px; border-radius: 10px; margin-top: 20px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asteroid2Shiba Mining</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #060d16;
+            --card-bg: #0f1c2e;
+            --accent-color: #48cae4;
+            --accent-glow: rgba(72, 202, 228, 0.3);
+            --text-main: #ffffff;
+            --text-muted: #8a9bb8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: radial-gradient(circle at center, #0b1d36 0%, var(--bg-color) 80%);
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .wallet-address {
+            background: rgba(255,255,255,0.08);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        .assets-box {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .assets-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .assets-box h2 {
+            font-size: 28px;
+            margin: 5px 0;
+            color: var(--text-main);
+        }
+
+        .wallet-split {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .coin-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .mining-counter {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .coin-wrapper {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #48cae4 0%, #03045e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 35px var(--accent-glow);
+            animation: pulse 2s infinite;
+            cursor: pointer;
+        }
+
+        .coin-image {
+            width: 190px;
+            height: 190px;
+            object-fit: contain;
+            border-radius: 50%;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 20px var(--accent-glow); }
+            50% { transform: scale(1.03); box-shadow: 0 0 40px var(--accent-color); }
+            100% { transform: scale(1); box-shadow: 0 0 20px var(--accent-glow); }
+        }
+
+        .claim-section {
+            padding: 15px 0;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #48cae4, #0077b6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .bottom-nav {
+            height: 65px;
+            background: var(--card-bg);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+        }
+
+        .nav-item.active {
+            color: var(--accent-color);
+        }
+
+        .task-item, .card-level {
+            background: var(--card-bg);
+            padding: 12px 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .task-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .task-info i {
+            font-size: 24px;
+            color: var(--accent-color);
+        }
+
+        .invite-box {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .invite-box input {
+            flex: 1;
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: white;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
-  <h1>⛏️ AST2 Miner</h1>
-  <p>Saldo Kamu</p>
-  <div class="balance" id="balance">0.00 A2S</div>
-  <button id="mineBtn">Mulai Mining</button>
+    <div class="app-container">
+        
+        <header class="app-header">
+            <div class="user-status">
+                <span id="user-level">Lvl 1 • READY</span>
+            </div>
+            <div class="wallet-address" id="wallet-address">UQBc...TFq2</div>
+        </header>
 
-<script>
-const SUPABASE_URL = "https://eacnastpvwjwngvrpilk.supabase.co"
-const SUPABASE_KEY = "sb_publishable_cU45-75Obett_5aHhyLZkA_E7cFvupK"
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+        <section id="tab-mine" class="tab-content active">
+            <div class="assets-box">
+                <p class="assets-title">ASSETS</p>
+                <h2><span id="total-ast2">2,000</span> AST2</h2>
+                <div class="wallet-split">
+                    <span>Holding: <strong id="holding-wallet">0</strong></span>
+                    <span>Pool: <strong id="pool-wallet">2,000</strong> AST2</span>
+                </div>
+            </div>
 
-const tg = window.Telegram.WebApp;
-tg.expand();
-const user = tg.initDataUnsafe.user;
-let balance = 0;
-let mining = false;
-let interval;
+            <div class="coin-container">
+                <div class="mining-counter" id="mining-counter">+0.3627</div>
+                <div class="coin-wrapper" id="coin-click">
+                    <img src="https://i.ibb.co/DPGgvfyQ/1789225844455.png" alt="AST2 Coin" class="coin-image">
+                </div>
+            </div>
 
-async function loadUser() {
-  let { data } = await supabase.from('userAst2').select('*').eq('user_id', user.id).single();
-  
-  if (!data) {
-    // Kalau belum ada, insert baru dengan balance 0
-    await supabase.from('userAst2').insert({ user_id: user.id, username: user.username, balance: 0 });
-    balance = 0; // <-- langsung set 0
-  } else {
-    // Kalau udah ada, ambil balance nya
-    balance = data.balance;
-  }
-  
-  document.getElementById('balance').innerText = balance.toFixed(2) + " A2S";
-}
+            <div class="claim-section">
+                <button id="claim-btn" class="btn-primary">CLAIM</button>
+            </div>
+        </section>
 
-document.getElementById('mineBtn').onclick = () => {
-  mining = !mining;
-  document.getElementById('mineBtn').innerText = mining ? "Stop Mining" : "Mulai Mining";
-  if (mining) {
-    interval = setInterval(async () => {
-      balance += 0.1;
-      document.getElementById('balance').innerText = balance.toFixed(2) + " A2S";
-      await supabase.from('userAst2').update({ balance: balance }).eq('user_id', user.id);
-    }, 10000);
-  } else {
-    clearInterval(interval);
-  }
-}
+        <section id="tab-tasks" class="tab-content">
+            <h2>Daily Tasks</h2>
+            <p class="subtitle">Complete tasks to boost your AST2 pool</p>
+            <div class="task-item">
+                <div class="task-info">
+                    <i class="fa-brands fa-youtube"></i>
+                    <div>
+                        <h4>YouTube Like & Comment</h4>
+                        <p>+1 AST2</p>
+                    </div>
+                </div>
+                <button class="btn-secondary" onclick="alert('Task completed!')">Claim</button>
+            </div>
+            <div class="task-item">
+                <div class="task-info">
+                    <i class="fa-brands fa-x-twitter"></i>
+                    <div>
+                        <h4>X (Twitter) Retweet</h4>
+                        <p>+1 AST2</p>
+                    </div>
+                </div>
+                <button class="btn-secondary" onclick="alert('Task completed!')">Claim</button>
+            </div>
+        </section>
 
-loadUser();
-</script>
+        <section id="tab-miners" class="tab-content">
+            <h2>MY LEVEL JOURNEY</h2>
+            <div class="card-level active-level">
+                <h3>Level 1 • Peak 192</h3>
+                <p>Speed: 0.20 TH/s</p>
+                <span class="badge-active">ACTIVE</span>
+            </div>
+            <div class="card-level locked-level">
+                <h3>Level 2</h3>
+                <p>Speed: 0.20 TH/s</p>
+                <button class="btn-unlock">NEED 100 AST2</button>
+            </div>
+        </section>
+
+        <section id="tab-friends" class="tab-content">
+            <h2>Invite Friends</h2>
+            <p>Get mining speed bonuses from your referrals.</p>
+            <div class="invite-box">
+                <input type="text" id="invite-link" value="https://t.me/ast2komunitasmining_bot?start=ref123" readonly>
+                <button class="btn-secondary" onclick="copyInviteLink()">Copy</button>
+            </div>
+            <h3>Friends List (3)</h3>
+            <ul class="friend-list">
+                <li><span>User 8216200317</span> <span class="status-off">Not Active</span></li>
+                <li><span>Muminin</span> <span class="status-on">Active</span></li>
+            </ul>
+        </section>
+
+        <section id="tab-profile" class="tab-content">
+            <h2>User Profile</h2>
+            <div class="profile-card">
+                <p><strong>User ID:</strong> <span id="profile-id">-</span></p>
+                <p><strong>Status:</strong> <span style="color: #4cd137;">Verified ✓</span></p>
+                <p><strong>Total Balance:</strong> 2,000 AST2</p>
+            </div>
+            <button class="btn-primary" style="margin-top: 20px;" onclick="alert('Withdrawal feature coming soon!')">Withdraw to Wallet</button>
+        </section>
+
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('mine', this)">
+                <i class="fa-solid fa-gem"></i>
+                <span>Mine</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('tasks', this)">
+                <i class="fa-solid fa-list-check"></i>
+                <span>Tasks</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('miners', this)">
+                <i class="fa-solid fa-bolt"></i>
+                <span>Miners</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('friends', this)">
+                <i class="fa-solid fa-users"></i>
+                <span>Friends</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('profile', this)">
+                <i class="fa-solid fa-user"></i>
+                <span>Profile</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Function to switch between tabs
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.classList.remove('active');
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            element.classList.add('active');
+        }
+
+        // Initialize Telegram User data
+        document.addEventListener("DOMContentLoaded", () => {
+            const user = tg.initDataUnsafe?.user;
+            if (user) {
+                document.getElementById("profile-id").innerText = user.id;
+                if(user.username) {
+                    document.getElementById("wallet-address").innerText = `@${user.username}`;
+                }
+            }
+        });
+
+        // Click coin interaction
+        let currentPool = 2000;
+        document.getElementById("coin-click").addEventListener("click", () => {
+            currentPool += 0.3627;
+            document.getElementById("pool-wallet").innerText = currentPool.toFixed(4);
+            document.getElementById("total-ast2").innerText = currentPool.toFixed(0);
+        });
+
+        // Claim Button action
+        document.getElementById("claim-btn").addEventListener("click", () => {
+            alert("Successfully claimed AST2 coins to your Pool Wallet!");
+        });
+
+        // Copy Invite Link function
+        function copyInviteLink() {
+            const inviteInput = document.getElementById("invite-link");
+            inviteInput.select();
+            navigator.clipboard.writeText(inviteInput.value);
+            alert("Invite link copied to clipboard!");
+        }
+    </script>
 </body>
 </html>
