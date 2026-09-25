@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asteroid2Shiba Mining</title>
+    <title>Asteroid2Shiba Withdrawal</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -54,26 +54,6 @@
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
-        .wallet-connect-btn {
-            background: #0088cc;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 11px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .wallet-connected {
-            background: rgba(72, 202, 228, 0.15);
-            color: var(--accent-color);
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            border: 1px solid var(--accent-color);
-        }
-
         .tab-content {
             flex: 1;
             overflow-y: auto;
@@ -84,47 +64,6 @@
 
         .tab-content.active {
             display: flex;
-        }
-
-        .assets-box {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .assets-title {
-            font-size: 12px;
-            color: var(--text-muted);
-            letter-spacing: 1px;
-        }
-
-        .assets-box h2 {
-            font-size: 32px;
-            margin: 5px 0;
-            color: var(--text-main);
-        }
-
-        .mining-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 25px 20px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            margin: auto 0;
-        }
-
-        .mining-status-icon {
-            font-size: 50px;
-            color: var(--accent-color);
-            margin-bottom: 15px;
-            text-shadow: 0 0 15px var(--accent-glow);
-        }
-
-        .timer-display {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--accent-color);
-            margin: 10px 0 20px 0;
         }
 
         .btn-primary {
@@ -138,24 +77,6 @@
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 4px 15px var(--accent-glow);
-        }
-
-        .btn-primary:disabled {
-            background: #2c3e50;
-            color: #7f8c8d;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 12px;
         }
 
         .bottom-nav {
@@ -188,59 +109,44 @@
             color: var(--accent-color);
         }
 
-        .task-item, .card-level {
+        .card-box {
             background: var(--card-bg);
-            padding: 12px 15px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            border: 1px solid rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 20px;
         }
 
-        .task-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .input-group {
+            margin-bottom: 15px;
         }
 
-        .task-info i {
-            font-size: 24px;
-            color: var(--accent-color);
-        }
-
-        .invite-box {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .invite-box input {
-            flex: 1;
-            background: var(--card-bg);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 8px 12px;
-            border-radius: 8px;
-            color: white;
-            font-size: 12px;
-        }
-        
-        .subtitle {
+        .input-group label {
+            display: block;
             font-size: 12px;
             color: var(--text-muted);
-            margin-bottom: 15px;
+            margin-bottom: 6px;
         }
 
-        .warning-box {
-            background: rgba(231, 76, 60, 0.15);
-            border: 1px solid #e74c3c;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 11px;
-            color: #ff9999;
-            margin-bottom: 15px;
+        .input-group input {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 10px;
+            color: white;
+            font-size: 13px;
+        }
+
+        .notice-box {
+            background: rgba(72, 202, 228, 0.1);
+            border: 1px solid var(--accent-color);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: var(--accent-color);
             text-align: center;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -249,126 +155,71 @@
         
         <!-- HEADER -->
         <header class="app-header">
-            <div class="user-status">
-                <span id="user-level-badge">Level 1</span>
-            </div>
-            <div id="wallet-header-container">
-                <button class="wallet-connect-btn" onclick="connectTonWallet()">Connect TON Wallet</button>
-            </div>
+            <div><span>AST2 Withdrawal Portal</span></div>
+            <div><span id="user-level-badge" style="color: var(--accent-color);">Active</span></div>
         </header>
 
-        <!-- TAB CONTENT: MINE -->
+        <!-- TAB CONTENT: MINE (DIHENTIKAN SEMENTARA) -->
         <section id="tab-mine" class="tab-content active">
-            <div class="assets-box">
-                <p class="assets-title">TOTAL AST2 BALANCE</p>
-                <h2><span id="total-balance">0.00</span> AST2</h2>
-                <p style="font-size: 11px; color: var(--accent-color);">Speed: <span id="speed-per-claim">14.40</span> AST2 / Session (8 Hours)</p>
-            </div>
-
-            <div class="warning-box" id="wallet-warning">
-                ⚠️ Please connect your official TON Wallet to unlock mining and secure your 1 Account / 1 Wallet binding!
-            </div>
-
-            <div class="mining-card">
-                <div class="mining-status-icon">
-                    <i class="fa-solid fa-rocket" id="mining-icon"></i>
-                </div>
-                <p id="mining-status-text" style="font-size: 14px; color: var(--text-muted);">Connect TON Wallet First</p>
-                <div class="timer-display" id="timer-display">08:00:00</div>
-                <button id="claim-mining-btn" class="btn-primary" onclick="claimMining()" disabled>Connect Wallet to Start</button>
+            <div class="card-box" style="text-align: center; margin-top: auto; margin-bottom: auto;">
+                <i class="fa-solid fa-tools" style="font-size: 40px; color: var(--accent-color); margin-bottom: 15px;"></i>
+                <h2>Mining Dihentikan Sementara</h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-top: 10px;">Fitur mining sedang dalam pemeliharaan. Silakan buka menu <strong>Profile</strong> untuk melakukan penarikan saldo Anda.</p>
             </div>
         </section>
 
-        <!-- TAB CONTENT: TASKS -->
+        <!-- TAB CONTENT: TASKS (DIHENTIKAN SEMENTARA) -->
         <section id="tab-tasks" class="tab-content">
-            <h2>Social Tasks</h2>
-            <p class="subtitle">Complete tasks to earn +3 AST2 per task. Anti-cheat verified.</p>
-            
-            <div class="task-item" id="task-x-follow">
-                <div class="task-info">
-                    <i class="fa-brands fa-x-twitter"></i>
-                    <div>
-                        <h4>X (Twitter) Follow</h4>
-                        <p style="font-size:11px; color:var(--text-muted);">x.com/Asteroid2Shiba</p>
-                    </div>
-                </div>
-                <button class="btn-secondary" onclick="startTask('x-follow', 'https://x.com/Asteroid2Shiba', 3)">Start</button>
-            </div>
-
-            <div class="task-item" id="task-x-rt">
-                <div class="task-info">
-                    <i class="fa-brands fa-x-twitter"></i>
-                    <div>
-                        <h4>Like & Repost X Post</h4>
-                        <p style="font-size:11px; color:var(--text-muted);">Latest Post</p>
-                    </div>
-                </div>
-                <button class="btn-secondary" onclick="startTask('x-rt', 'https://x.com/Asteroid2Shiba/status/2097965210137206802', 3)">Start</button>
-            </div>
-
-            <div class="task-item" id="task-tg">
-                <div class="task-info">
-                    <i class="fa-brands fa-telegram"></i>
-                    <div>
-                        <h4>Join Telegram Channel</h4>
-                        <p style="font-size:11px; color:var(--text-muted);">t.me/asteroid2shiba</p>
-                    </div>
-                </div>
-                <button class="btn-secondary" onclick="startTask('tg', 'https://t.me/asteroid2shiba', 3)">Start</button>
-            </div>
-
-            <div class="task-item" id="task-yt">
-                <div class="task-info">
-                    <i class="fa-brands fa-youtube"></i>
-                    <div>
-                        <h4>YouTube Subscribe</h4>
-                        <p style="font-size:11px; color:var(--text-muted);">youtube.com/@asteroid2shiba</p>
-                    </div>
-                </div>
-                <button class="btn-secondary" onclick="startTask('yt', 'https://www.youtube.com/@asteroid2shiba', 3)">Start</button>
+            <div class="card-box" style="text-align: center; margin-top: auto; margin-bottom: auto;">
+                <i class="fa-solid fa-clock" style="font-size: 40px; color: var(--text-muted); margin-bottom: 15px;"></i>
+                <h2>Tugas Dinonaktifkan</h2>
+                <p style="color: var(--text-muted); font-size: 13px;">Bagian tugas sosial sedang ditutup untuk sementara waktu.</p>
             </div>
         </section>
 
-        <!-- TAB CONTENT: MINERS -->
+        <!-- TAB CONTENT: MINERS (DIHENTIKAN SEMENTARA) -->
         <section id="tab-miners" class="tab-content">
-            <h2>Level Journey</h2>
-            <p class="subtitle">Upgrade your level to increase mining rewards</p>
-            <div id="levels-container"></div>
+            <div class="card-box" style="text-align: center; margin-top: auto; margin-bottom: auto;">
+                <i class="fa-solid fa-bolt" style="font-size: 40px; color: var(--text-muted); margin-bottom: 15px;"></i>
+                <h2>Level Journey Ditutup</h2>
+                <p style="color: var(--text-muted); font-size: 13px;">Peningkatan level dihentikan sementara.</p>
+            </div>
         </section>
 
-        <!-- TAB CONTENT: FRIENDS -->
+        <!-- TAB CONTENT: FRIENDS (DIHENTIKAN SEMENTARA) -->
         <section id="tab-friends" class="tab-content">
-            <h2>Invite Friends</h2>
-            <p class="subtitle">Share your link and invite friends to join Asteroid2Shiba.</p>
-            <div class="invite-box">
-                <input type="text" id="invite-link" readonly>
-                <button class="btn-secondary" onclick="copyInviteLink()">Copy</button>
+            <div class="card-box" style="text-align: center; margin-top: auto; margin-bottom: auto;">
+                <i class="fa-solid fa-users-slash" style="font-size: 40px; color: var(--text-muted); margin-bottom: 15px;"></i>
+                <h2>Referral Ditutup</h2>
+                <p style="color: var(--text-muted); font-size: 13px;">Sistem undang teman sedang tidak aktif.</p>
             </div>
-            <button class="btn-primary" style="margin-top: 10px; font-size: 14px; padding: 12px;" onclick="shareInviteLink()"><i class="fa-brands fa-telegram"></i> Share to Telegram Friends</button>
-            <h3 style="margin-top: 25px; font-size: 14px;">Invited Friends (<span id="friend-count">0</span>)</h3>
-            <ul id="friend-list-ul" style="list-style: none; margin-top: 10px; font-size: 13px;">
-                <p style="color: var(--text-muted); font-size: 12px;">No friends invited yet. Start sharing your link!</p>
-            </ul>
         </section>
 
-        <!-- TAB CONTENT: PROFILE -->
+        <!-- TAB CONTENT: PROFILE & WITHDRAWAL -->
         <section id="tab-profile" class="tab-content">
-            <h2>User Profile</h2>
-            <p class="subtitle">Account Security & Details</p>
-            <div class="task-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">
-                <p><strong>Telegram ID:</strong> <span id="profile-id">-</span></p>
-                <p><strong>Connected TON Wallet:</strong> <span id="profile-wallet" style="color: var(--accent-color);">Not Connected</span></p>
-                <p><strong>Current Level:</strong> <span id="profile-level-text">Level 1</span></p>
-                <p><strong>Total Balance:</strong> <span id="profile-balance">0.00</span> AST2</p>
-                <p><strong>Security Status:</strong> <span style="color: #2ecc71;">Anti-VPN & 1 IP Verified ✓</span></p>
+            <h2>Penarikan Saldo AST2</h2>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Masukkan alamat dompet TON Anda dengan benar di bawah ini.</p>
+            
+            <div class="card-box">
+                <p style="margin-bottom: 8px;"><strong>Telegram ID:</strong> <span id="profile-id" style="color: var(--accent-color);">-</span></p>
+                <p style="margin-bottom: 8px;"><strong>Total Saldo Database:</strong> <span id="profile-balance" style="color: #2ecc71; font-weight: bold;">0.00</span> AST2</p>
             </div>
-            <!-- Tombol Withdraw tanpa teks batas 500 AST2 -->
-            <button class="btn-primary" style="margin-top: 20px;" onclick="withdrawBalance()">Withdraw to TON Wallet</button>
+
+            <div class="notice-box">
+                ℹ️ Silakan ketik alamat dompet TON tujuan Anda pada kolom di bawah ini.
+            </div>
+
+            <div class="input-group">
+                <label>Alamat Dompet TON Anda</label>
+                <input type="text" id="manual-wallet-input" placeholder="Contoh: UQD... atau EQD...">
+            </div>
+
+            <button class="btn-primary" onclick="saveWalletAndWithdraw()">Kirim Permintaan Penarikan</button>
         </section>
 
         <!-- BOTTOM NAVIGATION -->
         <nav class="bottom-nav">
-            <button class="nav-item active" onclick="switchTab('mine', this)">
+            <button class="nav-item" onclick="switchTab('mine', this)">
                 <i class="fa-solid fa-gem"></i>
                 <span>Mine</span>
             </button>
@@ -384,7 +235,7 @@
                 <i class="fa-solid fa-users"></i>
                 <span>Friends</span>
             </button>
-            <button class="nav-item" onclick="switchTab('profile', this)">
+            <button class="nav-item active" onclick="switchTab('profile', this)">
                 <i class="fa-solid fa-user"></i>
                 <span>Profile</span>
             </button>
@@ -401,40 +252,11 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_3TvMSAvmPZlHLfuXv5Q1tg_vSfltqjD';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const levelsData = [
-            { level: 1, claim: 14.40, kumulatif: 0 },
-            { level: 2, claim: 15.12, kumulatif: 50 },
-            { level: 3, claim: 15.88, kumulatif: 140 },
-            { level: 4, claim: 16.67, kumulatif: 302 },
-            { level: 5, claim: 17.51, kumulatif: 594 },
-            { level: 6, claim: 18.38, kumulatif: 1119 },
-            { level: 7, claim: 19.30, kumulatif: 2065 },
-            { level: 8, claim: 20.27, kumulatif: 3768 },
-            { level: 9, claim: 21.28, kumulatif: 6833 },
-            { level: 10, claim: 22.34, kumulatif: 12350 },
-            { level: 11, claim: 23.46, kumulatif: 22281 },
-            { level: 12, claim: 24.63, kumulatif: 40156 },
-            { level: 13, claim: 25.86, kumulatif: 72331 },
-            { level: 14, claim: 27.16, kumulatif: 130246 },
-            { level: 15, claim: 28.51, kumulatif: 234493 },
-            { level: 16, claim: 29.94, kumulatif: 422137 },
-            { level: 17, claim: 31.44, kumulatif: 759896 },
-            { level: 18, claim: 33.01, kumulatif: 1367863 },
-            { level: 19, claim: 34.66, kumulatif: 2462203 },
-            { level: 20, claim: 36.39, kumulatif: 4432016 }
-        ];
-
         let userState = {
             balance: 0,
-            currentLevel: 1,
-            friends: [],
-            tonWallet: null,
-            targetTimestamp: null,
-            completedTasks: []
+            tonWallet: ""
         };
 
-        let timerInterval;
-        const SESSION_DURATION = 8 * 60 * 60 * 1000;
         let userTelegramId = "Demo_User_123";
 
         document.addEventListener("DOMContentLoaded", async () => {
@@ -444,18 +266,7 @@
             }
             document.getElementById("profile-id").innerText = userTelegramId;
 
-            const botUsername = "ast2komunitasmining_bot";
-            const refLink = `https://t.me/${botUsername}?start=ref_${userTelegramId}`;
-            document.getElementById("invite-link").value = refLink;
-
             await loadUserData();
-
-            checkWalletState();
-            renderUI();
-            renderLevels();
-            renderFriendsList();
-            renderCompletedTasks();
-            initPersistentTimer();
         });
 
         async function loadUserData() {
@@ -468,25 +279,42 @@
 
                 if (data) {
                     userState.balance = data.balance || 0;
-                    userState.currentLevel = data.current_level || 1;
-                    userState.tonWallet = data.ton_wallet || null;
-                    userState.targetTimestamp = data.target_timestamp ? new Date(data.target_timestamp).getTime() : null;
-                    userState.completedTasks = data.completed_tasks || [];
-                    userState.friends = data.friends || [];
+                    userState.tonWallet = data.ton_wallet || "";
                 } else {
                     let localData = JSON.parse(localStorage.getItem('ast2_user_state'));
                     if (localData) {
                         userState = localData;
                     }
-                    await saveState();
                 }
             } catch (err) {
                 let localData = JSON.parse(localStorage.getItem('ast2_user_state'));
                 if (localData) userState = localData;
             }
+
+            document.getElementById("profile-balance").innerText = userState.balance.toFixed(2);
+            if (userState.tonWallet) {
+                document.getElementById("manual-wallet-input").value = userState.tonWallet;
+            }
         }
 
-        async function saveState() {
+        async function saveWalletAndWithdraw() {
+            const inputWallet = document.getElementById("manual-wallet-input").value.trim();
+
+            if (!inputWallet) {
+                alert("Mohon masukkan alamat dompet TON Anda terlebih dahulu!");
+                return;
+            }
+
+            if (userState.balance <= 0) {
+                alert("Anda tidak memiliki saldo untuk ditarik.");
+                return;
+            }
+
+            userState.tonWallet = inputWallet;
+            let amountToWithdraw = userState.balance;
+            userState.balance = 0; // Reset saldo setelah withdraw
+
+            // Simpan ke localStorage & Supabase
             localStorage.setItem('ast2_user_state', JSON.stringify(userState));
             try {
                 await supabaseClient
@@ -494,15 +322,15 @@
                     .upsert({
                         telegram_id: userTelegramId,
                         balance: userState.balance,
-                        current_level: userState.currentLevel,
-                        ton_wallet: userState.tonWallet,
-                        target_timestamp: userState.targetTimestamp ? new Date(userState.targetTimestamp).toISOString() : null,
-                        completed_tasks: userState.completedTasks,
-                        friends: userState.friends
+                        ton_wallet: userState.tonWallet
                     }, { onConflict: 'telegram_id' });
             } catch (err) {
-                console.error("Gagal sinkronisasi ke Supabase:", err);
+                console.error("Gagal sinkronisasi database:", err);
             }
+
+            document.getElementById("profile-balance").innerText = userState.balance.toFixed(2);
+
+            alert(`Permintaan penarikan sebesar ${amountToWithdraw.toFixed(2)} AST2 berhasil dikirim ke alamat dompet TON:\n\n${inputWallet}`);
         }
 
         function switchTab(tabId, element) {
@@ -510,245 +338,6 @@
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             document.getElementById(`tab-${tabId}`).classList.add('active');
             element.classList.add('active');
-        }
-
-        function renderUI() {
-            let activeData = levelsData[userState.currentLevel - 1];
-            document.getElementById("total-balance").innerText = userState.balance.toFixed(2);
-            document.getElementById("profile-balance").innerText = userState.balance.toFixed(2);
-            document.getElementById("user-level-badge").innerText = `Level ${userState.currentLevel}`;
-            document.getElementById("profile-level-text").innerText = `Level ${userState.currentLevel}`;
-            document.getElementById("speed-per-claim").innerText = activeData.claim.toFixed(2);
-
-            if (userState.tonWallet) {
-                document.getElementById("wallet-header-container").innerHTML = `<span class="wallet-connected">🔗 ${userState.tonWallet.substring(0, 4)}...${userState.tonWallet.slice(-4)}</span>`;
-                document.getElementById("profile-wallet").innerText = userState.tonWallet;
-                document.getElementById("wallet-warning").style.display = "none";
-            } else {
-                document.getElementById("wallet-header-container").innerHTML = `<button class="wallet-connect-btn" onclick="connectTonWallet()">Connect TON Wallet</button>`;
-                document.getElementById("profile-wallet").innerText = "Not Connected";
-                document.getElementById("wallet-warning").style.display = "block";
-            }
-        }
-
-        function checkWalletState() {
-            if (!userState.tonWallet) {
-                document.getElementById("claim-mining-btn").disabled = true;
-                document.getElementById("claim-mining-btn").innerText = "Connect Wallet to Start";
-                document.getElementById("mining-status-text").innerText = "TON Wallet Required";
-            }
-        }
-
-        async function connectTonWallet() {
-            let sampleWallet = "EQD" + Math.random().toString(36).substring(2, 12) + "AST2Wallet" + Math.floor(Math.random() * 1000);
-            userState.tonWallet = sampleWallet;
-            
-            if (!userState.targetTimestamp) {
-                userState.targetTimestamp = Date.now() + SESSION_DURATION;
-            }
-            await saveState();
-            renderUI();
-            initPersistentTimer();
-            alert("TON Wallet successfully connected & securely bound to your account!");
-        }
-
-        function renderLevels() {
-            const container = document.getElementById("levels-container");
-            container.innerHTML = "";
-            levelsData.forEach((lvl) => {
-                let isCurrent = lvl.level === userState.currentLevel;
-                let canUpgrade = userState.balance >= lvl.kumulatif && !isCurrent && lvl.level > userState.currentLevel;
-                
-                let html = `
-                    <div class="card-level" style="border: ${isCurrent ? '1px solid var(--accent-color)' : '1px solid rgba(255,255,255,0.03)'}">
-                        <div>
-                            <h4>Level ${lvl.level}</h4>
-                            <p style="font-size: 11px; color: var(--text-muted);">Claim: ${lvl.claim} AST2 | Cumulative: ${lvl.kumulatif.toLocaleString()} AST2</p>
-                        </div>
-                        <div>
-                            ${isCurrent ? '<span style="color: #4cd137; font-size: 12px; font-weight:bold;">ACTIVE</span>' : 
-                              (canUpgrade ? `<button class="btn-secondary" style="background:var(--accent-color); color:#000;" onclick="upgradeLevel(${lvl.level})">Upgrade</button>` : '<span style="font-size:11px; color:var(--text-muted);">Locked</span>')}
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += html;
-            });
-        }
-
-        function initPersistentTimer() {
-            if (timerInterval) clearInterval(timerInterval);
-
-            timerInterval = setInterval(async () => {
-                if (!userState.tonWallet) {
-                    document.getElementById("timer-display").innerText = "08:00:00";
-                    return;
-                }
-
-                if (!userState.targetTimestamp) {
-                    userState.targetTimestamp = Date.now() + SESSION_DURATION;
-                    await saveState();
-                }
-
-                let now = Date.now();
-                let timeLeft = userState.targetTimestamp - now;
-
-                if (timeLeft <= 0) {
-                    document.getElementById("timer-display").innerText = "00:00:00";
-                    document.getElementById("mining-status-text").innerText = "Mining Session Ready to Claim!";
-                    let activeData = levelsData[userState.currentLevel - 1];
-                    document.getElementById("claim-mining-btn").disabled = false;
-                    document.getElementById("claim-mining-btn").innerText = `Claim ${activeData.claim.toFixed(2)} AST2`;
-                    clearInterval(timerInterval);
-                } else {
-                    let hours = Math.floor(timeLeft / (1000 * 60 * 60));
-                    let minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                    let seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-                    document.getElementById("timer-display").innerText = 
-                        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                    document.getElementById("mining-status-text").innerText = "Mining Session Active";
-                    document.getElementById("claim-mining-btn").disabled = true;
-                    document.getElementById("claim-mining-btn").innerText = "Mining in Progress...";
-                }
-            }, 1000);
-        }
-
-        async function claimMining() {
-            if (!userState.tonWallet) {
-                alert("Please connect your TON wallet first!");
-                return;
-            }
-
-            let activeData = levelsData[userState.currentLevel - 1];
-            userState.balance += activeData.claim;
-            userState.targetTimestamp = Date.now() + SESSION_DURATION;
-            await saveState();
-
-            renderUI();
-            renderLevels();
-            initPersistentTimer();
-            
-            alert(`Successfully claimed +${activeData.claim} AST2!`);
-        }
-
-        async function upgradeLevel(targetLevel) {
-            let targetData = levelsData[targetLevel - 1];
-            if (userState.balance >= targetData.kumulatif) {
-                userState.currentLevel = targetLevel;
-                await saveState();
-                renderUI();
-                renderLevels();
-                alert(`Congratulations! You have upgraded to Level ${targetLevel}`);
-            } else {
-                alert("Insufficient cumulative balance to upgrade this level.");
-            }
-        }
-
-        function startTask(taskId, url, reward) {
-            if (userState.completedTasks.includes(taskId)) return;
-
-            const taskElement = document.getElementById(`task-${taskId}`);
-            const button = taskElement.querySelector("button");
-
-            window.open(url, '_blank');
-
-            let remaining = 15;
-            button.disabled = true;
-            button.style.opacity = "0.6";
-            button.innerText = `Checking (${remaining}s)...`;
-
-            let checkInterval = setInterval(() => {
-                remaining--;
-                if (remaining > 0) {
-                    button.innerText = `Checking (${remaining}s)...`;
-                } else {
-                    clearInterval(checkInterval);
-                    button.innerText = "Claim";
-                    button.disabled = false;
-                    button.style.opacity = "1";
-                    button.setAttribute("onclick", `claimTaskReward('${taskId}', ${reward})`);
-                }
-            }, 1000);
-        }
-
-        async function claimTaskReward(taskId, reward) {
-            if (userState.completedTasks.includes(taskId)) return;
-
-            userState.balance += reward;
-            userState.completedTasks.push(taskId);
-            await saveState();
-            
-            renderUI();
-            renderLevels();
-            renderCompletedTasks();
-
-            alert(`Success! +${reward} AST2 added to your balance.`);
-        }
-
-        function renderCompletedTasks() {
-            userState.completedTasks.forEach(taskId => {
-                const taskElement = document.getElementById(`task-${taskId}`);
-                if (taskElement) {
-                    const button = taskElement.querySelector("button");
-                    if (button) {
-                        button.innerText = "Completed ✓";
-                        button.disabled = true;
-                        button.style.background = "#27ae60";
-                        button.style.color = "white";
-                        button.style.opacity = "1";
-                        button.removeAttribute("onclick");
-                    }
-                }
-            });
-        }
-
-        async function withdrawBalance() {
-            if (!userState.tonWallet) {
-                alert("Please connect your TON wallet first before withdrawing!");
-                return;
-            }
-
-            if (userState.balance <= 0) {
-                alert("You have no balance to withdraw.");
-                return;
-            }
-
-            let amountToWithdraw = userState.balance;
-            
-            userState.balance = 0;
-            await saveState();
-            
-            renderUI();
-            renderLevels();
-
-            alert(`Withdrawal request of ${amountToWithdraw.toFixed(2)} AST2 sent successfully to your TON Wallet (${userState.tonWallet})!`);
-        }
-
-        function shareInviteLink() {
-            const inviteUrl = document.getElementById("invite-link").value;
-            const text = encodeURIComponent("🚀 Join Asteroid2Shiba Mining Community, mine AST2 tokens, and connect your TON wallet now!");
-            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteUrl)}&text=${text}`;
-            window.open(shareUrl, '_blank');
-        }
-
-        function renderFriendsList() {
-            const listUl = document.getElementById("friend-list-ul");
-            const countEl = document.getElementById("friend-count");
-            
-            countEl.innerText = userState.friends.length;
-            if (userState.friends.length > 0) {
-                listUl.innerHTML = "";
-                userState.friends.forEach(friend => {
-                    listUl.innerHTML += `<li style="padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between;"><span>${friend}</span> <span style="color: #2ecc71;">Active (+50 AST2)</span></li>`;
-                });
-            }
-        }
-
-        function copyInviteLink() {
-            const inviteInput = document.getElementById("invite-link");
-            inviteInput.select();
-            navigator.clipboard.writeText(inviteInput.value);
-            alert("Invite link copied to clipboard!");
         }
     </script>
 </body>
