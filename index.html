@@ -159,7 +159,7 @@
             <div><span id="user-level-badge" style="color: var(--accent-color);">Active</span></div>
         </header>
 
-        <!-- TAB CONTENT: MINE (TEMPORARILY DISABLED) -->
+        <!-- TAB CONTENT: MINE -->
         <section id="tab-mine" class="tab-content active">
             <div class="card-box" style="text-align: center; margin-top: auto; margin-bottom: auto;">
                 <i class="fa-solid fa-tools" style="font-size: 40px; color: var(--accent-color); margin-bottom: 15px;"></i>
@@ -168,7 +168,7 @@
             </div>
         </section>
 
-        <!-- TAB CONTENT: TASKS (TEMPORARILY DISABLED) -->
+        <!-- TAB CONTENT: TASKS -->
         <section id="tab-tasks" class="tab-content">
             <div class="card-box" style="text-align: center; margin-top: auto; margin-bottom: auto;">
                 <i class="fa-solid fa-clock" style="font-size: 40px; color: var(--text-muted); margin-bottom: 15px;"></i>
@@ -177,7 +177,7 @@
             </div>
         </section>
 
-        <!-- TAB CONTENT: MINERS (TEMPORARILY DISABLED) -->
+        <!-- TAB CONTENT: MINERS -->
         <section id="tab-miners" class="tab-content">
             <div class="card-box" style="text-align: center; margin-top: auto; margin-bottom: auto;">
                 <i class="fa-solid fa-bolt" style="font-size: 40px; color: var(--text-muted); margin-bottom: 15px;"></i>
@@ -186,7 +186,7 @@
             </div>
         </section>
 
-        <!-- TAB CONTENT: FRIENDS (TEMPORARILY DISABLED) -->
+        <!-- TAB CONTENT: FRIENDS -->
         <section id="tab-friends" class="tab-content">
             <div class="card-box" style="text-align: center; margin-top: auto; margin-bottom: auto;">
                 <i class="fa-solid fa-users-slash" style="font-size: 40px; color: var(--text-muted); margin-bottom: 15px;"></i>
@@ -254,7 +254,7 @@
 
         let userState = {
             balance: 0,
-            tonWallet: ""
+            walletAddress: ""
         };
 
         let userTelegramId = "Demo_User_123";
@@ -279,15 +279,15 @@
 
                 if (data) {
                     userState.balance = data.balance || 0;
-                    userState.tonWallet = data.ton_wallet || "";
+                    userState.walletAddress = data.wallet_address || "";
                 }
             } catch (err) {
                 console.error("Failed to load user data from Supabase:", err);
             }
 
             document.getElementById("profile-balance").innerText = userState.balance.toFixed(2);
-            if (userState.tonWallet) {
-                document.getElementById("manual-wallet-input").value = userState.tonWallet;
+            if (userState.walletAddress) {
+                document.getElementById("manual-wallet-input").value = userState.walletAddress;
             }
         }
 
@@ -305,18 +305,18 @@
             }
 
             let amountToWithdraw = userState.balance;
-            userState.tonWallet = inputWallet;
-            userState.balance = 0; // Reset balance to 0 after successful request
+            userState.walletAddress = inputWallet;
+            userState.balance = 0; // Reset saldo jadi 0 setelah request berhasil
 
             try {
-                // 1. Simpan riwayat penarikan ke tabel 'withdrawals'
+                // 1. Menyimpan ke tabel withdrawals dengan kolom wallet_address
                 let { error: withdrawError } = await supabaseClient
                     .from('withdrawals')
                     .insert([
                         { 
                             telegram_id: userTelegramId, 
                             amount: amountToWithdraw, 
-                            ton_wallet: inputWallet 
+                            wallet_address: inputWallet 
                         }
                     ]);
 
@@ -324,13 +324,13 @@
                     throw withdrawError;
                 }
 
-                // 2. Perbarui data user (saldo jadi 0 & simpan wallet) di tabel 'users' secara permanen
+                // 2. Memperbarui saldo user menjadi 0 di tabel users
                 let { error: userError } = await supabaseClient
                     .from('users')
                     .upsert({
                         telegram_id: userTelegramId,
                         balance: userState.balance,
-                        ton_wallet: userState.tonWallet
+                        wallet_address: userState.walletAddress
                     }, { onConflict: 'telegram_id' });
 
                 if (userError) {
@@ -338,7 +338,7 @@
                 }
 
                 document.getElementById("profile-balance").innerText = userState.balance.toFixed(2);
-                alert(`Withdrawal request of ${amountToWithdraw.toFixed(2)} AST2 has been successfully submitted and recorded!\n\nTON Wallet: ${inputWallet}`);
+                alert(`Withdrawal request of ${amountToWithdraw.toFixed(2)} AST2 has been successfully submitted and recorded!\n\nWallet: ${inputWallet}`);
 
             } catch (err) {
                 console.error("Database error:", err);
