@@ -362,7 +362,7 @@
                 <p><strong>Total Balance:</strong> <span id="profile-balance">0.00</span> AST2</p>
                 <p><strong>Security Status:</strong> <span style="color: #2ecc71;">Anti-VPN & 1 IP Verified ✓</span></p>
             </div>
-            <!-- Tombol Withdraw tanpa batas minimal -->
+            <!-- Tombol Withdraw tanpa teks batas 500 AST2 -->
             <button class="btn-primary" style="margin-top: 20px;" onclick="withdrawBalance()">Withdraw to TON Wallet</button>
         </section>
 
@@ -397,7 +397,6 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Inisialisasi Supabase (Ganti dengan URL dan Anon Key proyek Supabase Anda)
         const SUPABASE_URL = 'YOUR_SUPABASE_URL';
         const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -449,7 +448,6 @@
             const refLink = `https://t.me/${botUsername}?start=ref_${userTelegramId}`;
             document.getElementById("invite-link").value = refLink;
 
-            // Memuat data dari Supabase / fallback ke LocalStorage
             await loadUserData();
 
             checkWalletState();
@@ -476,7 +474,6 @@
                     userState.completedTasks = data.completed_tasks || [];
                     userState.friends = data.friends || [];
                 } else {
-                    // Jika user baru belum ada di Supabase, buat data awal
                     let localData = JSON.parse(localStorage.getItem('ast2_user_state'));
                     if (localData) {
                         userState = localData;
@@ -484,7 +481,6 @@
                     await saveState();
                 }
             } catch (err) {
-                console.log("Menggunakan LocalStorage sebagai fallback offline.");
                 let localData = JSON.parse(localStorage.getItem('ast2_user_state'));
                 if (localData) userState = localData;
             }
@@ -706,7 +702,6 @@
             });
         }
 
-        // Fitur Pembaruan Penarikan: Tanpa Batas Minimal (Langsung Kirim/Proses Saldo)
         async function withdrawBalance() {
             if (!userState.tonWallet) {
                 alert("Please connect your TON wallet first before withdrawing!");
@@ -720,7 +715,6 @@
 
             let amountToWithdraw = userState.balance;
             
-            // Proses pengurangan saldo langsung
             userState.balance = 0;
             await saveState();
             
