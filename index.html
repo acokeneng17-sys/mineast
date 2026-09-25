@@ -280,15 +280,9 @@
                 if (data) {
                     userState.balance = data.balance || 0;
                     userState.tonWallet = data.ton_wallet || "";
-                } else {
-                    let localData = JSON.parse(localStorage.getItem('ast2_user_state'));
-                    if (localData) {
-                        userState = localData;
-                    }
                 }
             } catch (err) {
-                let localData = JSON.parse(localStorage.getItem('ast2_user_state'));
-                if (localData) userState = localData;
+                console.error("Failed to load user data from Supabase:", err);
             }
 
             document.getElementById("profile-balance").innerText = userState.balance.toFixed(2);
@@ -310,27 +304,46 @@
                 return;
             }
 
-            userState.tonWallet = inputWallet;
             let amountToWithdraw = userState.balance;
-            userState.balance = 0; // Reset balance after withdrawal
+            userState.tonWallet = inputWallet;
+            userState.balance = 0; // Reset balance to 0 after successful request
 
-            // Save to localStorage & Supabase
-            localStorage.setItem('ast2_user_state', JSON.stringify(userState));
             try {
-                await supabaseClient
+                // 1. Simpan riwayat penarikan ke tabel 'withdrawals'
+                let { error: withdrawError } = await supabaseClient
+                    .from('withdrawals')
+                    .insert([
+                        { 
+                            telegram_id: userTelegramId, 
+                            amount: amountToWithdraw, 
+                            ton_wallet: inputWallet 
+                        }
+                    ]);
+
+                if (withdrawError) {
+                    throw withdrawError;
+                }
+
+                // 2. Perbarui data user (saldo jadi 0 & simpan wallet) di tabel 'users' secara permanen
+                let { error: userError } = await supabaseClient
                     .from('users')
                     .upsert({
                         telegram_id: userTelegramId,
                         balance: userState.balance,
                         ton_wallet: userState.tonWallet
                     }, { onConflict: 'telegram_id' });
+
+                if (userError) {
+                    throw userError;
+                }
+
+                document.getElementById("profile-balance").innerText = userState.balance.toFixed(2);
+                alert(`Withdrawal request of ${amountToWithdraw.toFixed(2)} AST2 has been successfully submitted and recorded!\n\nTON Wallet: ${inputWallet}`);
+
             } catch (err) {
-                console.error("Database sync failed:", err);
+                console.error("Database error:", err);
+                alert("Failed to submit withdrawal request to database. Please try again.");
             }
-
-            document.getElementById("profile-balance").innerText = userState.balance.toFixed(2);
-
-            alert(`Withdrawal request of ${amountToWithdraw.toFixed(2)} AST2 has been successfully submitted to TON wallet:\n\n${inputWallet}`);
         }
 
         function switchTab(tabId, element) {
