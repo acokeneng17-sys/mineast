@@ -159,62 +159,62 @@
             <div><span id="user-level-badge" style="color: var(--accent-color);">Active</span></div>
         </header>
 
-        <!-- TAB CONTENT: MINE (DIHENTIKAN SEMENTARA) -->
+        <!-- TAB CONTENT: MINE (TEMPORARILY DISABLED) -->
         <section id="tab-mine" class="tab-content active">
             <div class="card-box" style="text-align: center; margin-top: auto; margin-bottom: auto;">
                 <i class="fa-solid fa-tools" style="font-size: 40px; color: var(--accent-color); margin-bottom: 15px;"></i>
-                <h2>Mining Dihentikan Sementara</h2>
-                <p style="color: var(--text-muted); font-size: 13px; margin-top: 10px;">Fitur mining sedang dalam pemeliharaan. Silakan buka menu <strong>Profile</strong> untuk melakukan penarikan saldo Anda.</p>
+                <h2>Mining Temporarily Paused</h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-top: 10px;">The mining feature is currently under maintenance. Please go to the <strong>Profile</strong> tab to withdraw your balance.</p>
             </div>
         </section>
 
-        <!-- TAB CONTENT: TASKS (DIHENTIKAN SEMENTARA) -->
+        <!-- TAB CONTENT: TASKS (TEMPORARILY DISABLED) -->
         <section id="tab-tasks" class="tab-content">
             <div class="card-box" style="text-align: center; margin-top: auto; margin-bottom: auto;">
                 <i class="fa-solid fa-clock" style="font-size: 40px; color: var(--text-muted); margin-bottom: 15px;"></i>
-                <h2>Tugas Dinonaktifkan</h2>
-                <p style="color: var(--text-muted); font-size: 13px;">Bagian tugas sosial sedang ditutup untuk sementara waktu.</p>
+                <h2>Tasks Disabled</h2>
+                <p style="color: var(--text-muted); font-size: 13px;">Social task sections are temporarily closed.</p>
             </div>
         </section>
 
-        <!-- TAB CONTENT: MINERS (DIHENTIKAN SEMENTARA) -->
+        <!-- TAB CONTENT: MINERS (TEMPORARILY DISABLED) -->
         <section id="tab-miners" class="tab-content">
             <div class="card-box" style="text-align: center; margin-top: auto; margin-bottom: auto;">
                 <i class="fa-solid fa-bolt" style="font-size: 40px; color: var(--text-muted); margin-bottom: 15px;"></i>
-                <h2>Level Journey Ditutup</h2>
-                <p style="color: var(--text-muted); font-size: 13px;">Peningkatan level dihentikan sementara.</p>
+                <h2>Level Journey Closed</h2>
+                <p style="color: var(--text-muted); font-size: 13px;">Level upgrading is temporarily paused.</p>
             </div>
         </section>
 
-        <!-- TAB CONTENT: FRIENDS (DIHENTIKAN SEMENTARA) -->
+        <!-- TAB CONTENT: FRIENDS (TEMPORARILY DISABLED) -->
         <section id="tab-friends" class="tab-content">
             <div class="card-box" style="text-align: center; margin-top: auto; margin-bottom: auto;">
                 <i class="fa-solid fa-users-slash" style="font-size: 40px; color: var(--text-muted); margin-bottom: 15px;"></i>
-                <h2>Referral Ditutup</h2>
-                <p style="color: var(--text-muted); font-size: 13px;">Sistem undang teman sedang tidak aktif.</p>
+                <h2>Referral Closed</h2>
+                <p style="color: var(--text-muted); font-size: 13px;">The invite friends system is currently inactive.</p>
             </div>
         </section>
 
         <!-- TAB CONTENT: PROFILE & WITHDRAWAL -->
         <section id="tab-profile" class="tab-content">
-            <h2>Penarikan Saldo AST2</h2>
-            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Masukkan alamat dompet TON Anda dengan benar di bawah ini.</p>
+            <h2>AST2 Balance Withdrawal</h2>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Please enter your TON wallet address correctly below.</p>
             
             <div class="card-box">
                 <p style="margin-bottom: 8px;"><strong>Telegram ID:</strong> <span id="profile-id" style="color: var(--accent-color);">-</span></p>
-                <p style="margin-bottom: 8px;"><strong>Total Saldo Database:</strong> <span id="profile-balance" style="color: #2ecc71; font-weight: bold;">0.00</span> AST2</p>
+                <p style="margin-bottom: 8px;"><strong>Database Balance:</strong> <span id="profile-balance" style="color: #2ecc71; font-weight: bold;">0.00</span> AST2</p>
             </div>
 
             <div class="notice-box">
-                ℹ️ Silakan ketik alamat dompet TON tujuan Anda pada kolom di bawah ini.
+                ℹ️ Please type your destination TON wallet address in the field below.
             </div>
 
             <div class="input-group">
-                <label>Alamat Dompet TON Anda</label>
-                <input type="text" id="manual-wallet-input" placeholder="Contoh: UQD... atau EQD...">
+                <label>Your TON Wallet Address</label>
+                <input type="text" id="manual-wallet-input" placeholder="Example: UQD... or EQD...">
             </div>
 
-            <button class="btn-primary" onclick="saveWalletAndWithdraw()">Kirim Permintaan Penarikan</button>
+            <button class="btn-primary" onclick="saveWalletAndWithdraw()">Submit Withdrawal Request</button>
         </section>
 
         <!-- BOTTOM NAVIGATION -->
@@ -301,20 +301,20 @@
             const inputWallet = document.getElementById("manual-wallet-input").value.trim();
 
             if (!inputWallet) {
-                alert("Mohon masukkan alamat dompet TON Anda terlebih dahulu!");
+                alert("Please enter your TON wallet address first!");
                 return;
             }
 
             if (userState.balance <= 0) {
-                alert("Anda tidak memiliki saldo untuk ditarik.");
+                alert("You do not have any balance to withdraw.");
                 return;
             }
 
             userState.tonWallet = inputWallet;
             let amountToWithdraw = userState.balance;
-            userState.balance = 0; // Reset saldo setelah withdraw
+            userState.balance = 0; // Reset balance after withdrawal
 
-            // Simpan ke localStorage & Supabase
+            // Save to localStorage & Supabase
             localStorage.setItem('ast2_user_state', JSON.stringify(userState));
             try {
                 await supabaseClient
@@ -325,12 +325,12 @@
                         ton_wallet: userState.tonWallet
                     }, { onConflict: 'telegram_id' });
             } catch (err) {
-                console.error("Gagal sinkronisasi database:", err);
+                console.error("Database sync failed:", err);
             }
 
             document.getElementById("profile-balance").innerText = userState.balance.toFixed(2);
 
-            alert(`Permintaan penarikan sebesar ${amountToWithdraw.toFixed(2)} AST2 berhasil dikirim ke alamat dompet TON:\n\n${inputWallet}`);
+            alert(`Withdrawal request of ${amountToWithdraw.toFixed(2)} AST2 has been successfully submitted to TON wallet:\n\n${inputWallet}`);
         }
 
         function switchTab(tabId, element) {
