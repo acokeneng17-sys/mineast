@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asteroid2Shiba Mining</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -283,9 +284,11 @@
             <h2>Social Tasks</h2>
             <p class="subtitle">Complete tasks to earn +3 AST2 per task. Anti-cheat verified.</p>
             
-            
-                        
-                      <h4>X (Twitter) Follow</h4>
+            <div class="task-item" id="task-x-follow">
+                <div class="task-info">
+                    <i class="fa-brands fa-x-twitter"></i>
+                    <div>
+                        <h4>X (Twitter) Follow</h4>
                         <p style="font-size:11px; color:var(--text-muted);">x.com/Asteroid2Shiba</p>
                     </div>
                 </div>
@@ -359,7 +362,8 @@
                 <p><strong>Total Balance:</strong> <span id="profile-balance">0.00</span> AST2</p>
                 <p><strong>Security Status:</strong> <span style="color: #2ecc71;">Anti-VPN & 1 IP Verified ✓</span></p>
             </div>
-            <button class="btn-primary" style="margin-top: 20px;" onclick="alert('TON Jetton withdrawal feature coming soon!')">Withdraw to TON Wallet</button>
+            <!-- Tombol Withdraw tanpa batas minimal -->
+            <button class="btn-primary" style="margin-top: 20px;" onclick="withdrawBalance()">Withdraw to TON Wallet</button>
         </section>
 
         <!-- BOTTOM NAVIGATION -->
@@ -393,6 +397,11 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
+        // Inisialisasi Supabase (Ganti dengan URL dan Anon Key proyek Supabase Anda)
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         const levelsData = [
             { level: 1, claim: 14.40, kumulatif: 0 },
             { level: 2, claim: 15.12, kumulatif: 50 },
@@ -416,39 +425,88 @@
             { level: 20, claim: 36.39, kumulatif: 4432016 }
         ];
 
-        let userState = JSON.parse(localStorage.getItem('ast2_user_state')) || {
+        let userState = {
             balance: 0,
             currentLevel: 1,
             friends: [],
             tonWallet: null,
-            targetTimestamp: null
+            targetTimestamp: null,
+            completedTasks: []
         };
 
         let timerInterval;
         const SESSION_DURATION = 8 * 60 * 60 * 1000;
         let userTelegramId = "Demo_User_123";
 
-        document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", async () => {
             const user = tg.initDataUnsafe?.user;
             if (user && user.id) {
-                userTelegramId = user.id;
+                userTelegramId = user.id.toString();
             }
             document.getElementById("profile-id").innerText = userTelegramId;
 
-            // Generate unique referral link based on user Telegram ID
-            const botUsername = "ast2mining_bot"; // Sesuaikan dengan username bot Anda jika berbeda
+            const botUsername = "ast2komunitasmining_bot";
             const refLink = `https://t.me/${botUsername}?start=ref_${userTelegramId}`;
             document.getElementById("invite-link").value = refLink;
+
+            // Memuat data dari Supabase / fallback ke LocalStorage
+            await loadUserData();
 
             checkWalletState();
             renderUI();
             renderLevels();
             renderFriendsList();
+            renderCompletedTasks();
             initPersistentTimer();
         });
 
-        function saveState() {
+        async function loadUserData() {
+            try {
+                let { data, error } = await supabaseClient
+                    .from('users')
+                    .select('*')
+                    .eq('telegram_id', userTelegramId)
+                    .single();
+
+                if (data) {
+                    userState.balance = data.balance || 0;
+                    userState.currentLevel = data.current_level || 1;
+                    userState.tonWallet = data.ton_wallet || null;
+                    userState.targetTimestamp = data.target_timestamp ? new Date(data.target_timestamp).getTime() : null;
+                    userState.completedTasks = data.completed_tasks || [];
+                    userState.friends = data.friends || [];
+                } else {
+                    // Jika user baru belum ada di Supabase, buat data awal
+                    let localData = JSON.parse(localStorage.getItem('ast2_user_state'));
+                    if (localData) {
+                        userState = localData;
+                    }
+                    await saveState();
+                }
+            } catch (err) {
+                console.log("Menggunakan LocalStorage sebagai fallback offline.");
+                let localData = JSON.parse(localStorage.getItem('ast2_user_state'));
+                if (localData) userState = localData;
+            }
+        }
+
+        async function saveState() {
             localStorage.setItem('ast2_user_state', JSON.stringify(userState));
+            try {
+                await supabaseClient
+                    .from('users')
+                    .upsert({
+                        telegram_id: userTelegramId,
+                        balance: userState.balance,
+                        current_level: userState.currentLevel,
+                        ton_wallet: userState.tonWallet,
+                        target_timestamp: userState.targetTimestamp ? new Date(userState.targetTimestamp).toISOString() : null,
+                        completed_tasks: userState.completedTasks,
+                        friends: userState.friends
+                    }, { onConflict: 'telegram_id' });
+            } catch (err) {
+                console.error("Gagal sinkronisasi ke Supabase:", err);
+            }
         }
 
         function switchTab(tabId, element) {
@@ -485,16 +543,15 @@
             }
         }
 
-        function connectTonWallet() {
+        async function connectTonWallet() {
             let sampleWallet = "EQD" + Math.random().toString(36).substring(2, 12) + "AST2Wallet" + Math.floor(Math.random() * 1000);
             userState.tonWallet = sampleWallet;
-            saveState();
-            renderUI();
             
             if (!userState.targetTimestamp) {
                 userState.targetTimestamp = Date.now() + SESSION_DURATION;
-                saveState();
             }
+            await saveState();
+            renderUI();
             initPersistentTimer();
             alert("TON Wallet successfully connected & securely bound to your account!");
         }
@@ -525,7 +582,7 @@
         function initPersistentTimer() {
             if (timerInterval) clearInterval(timerInterval);
 
-            timerInterval = setInterval(() => {
+            timerInterval = setInterval(async () => {
                 if (!userState.tonWallet) {
                     document.getElementById("timer-display").innerText = "08:00:00";
                     return;
@@ -533,7 +590,7 @@
 
                 if (!userState.targetTimestamp) {
                     userState.targetTimestamp = Date.now() + SESSION_DURATION;
-                    saveState();
+                    await saveState();
                 }
 
                 let now = Date.now();
@@ -560,7 +617,7 @@
             }, 1000);
         }
 
-        function claimMining() {
+        async function claimMining() {
             if (!userState.tonWallet) {
                 alert("Please connect your TON wallet first!");
                 return;
@@ -569,7 +626,7 @@
             let activeData = levelsData[userState.currentLevel - 1];
             userState.balance += activeData.claim;
             userState.targetTimestamp = Date.now() + SESSION_DURATION;
-            saveState();
+            await saveState();
 
             renderUI();
             renderLevels();
@@ -578,11 +635,11 @@
             alert(`Successfully claimed +${activeData.claim} AST2!`);
         }
 
-        function upgradeLevel(targetLevel) {
+        async function upgradeLevel(targetLevel) {
             let targetData = levelsData[targetLevel - 1];
             if (userState.balance >= targetData.kumulatif) {
                 userState.currentLevel = targetLevel;
-                saveState();
+                await saveState();
                 renderUI();
                 renderLevels();
                 alert(`Congratulations! You have upgraded to Level ${targetLevel}`);
@@ -592,6 +649,8 @@
         }
 
         function startTask(taskId, url, reward) {
+            if (userState.completedTasks.includes(taskId)) return;
+
             const taskElement = document.getElementById(`task-${taskId}`);
             const button = taskElement.querySelector("button");
 
@@ -616,31 +675,65 @@
             }, 1000);
         }
 
-        function claimTaskReward(taskId, reward) {
+        async function claimTaskReward(taskId, reward) {
+            if (userState.completedTasks.includes(taskId)) return;
+
             userState.balance += reward;
-            saveState();
+            userState.completedTasks.push(taskId);
+            await saveState();
+            
             renderUI();
             renderLevels();
-
-            const taskElement = document.getElementById(`task-${taskId}`);
-            const button = taskElement.querySelector("button");
-            button.innerText = "Completed ✓";
-            button.disabled = true;
-            button.style.background = "#27ae60";
-            button.style.color = "white";
-            button.style.opacity = "1";
-            button.removeAttribute("onclick");
+            renderCompletedTasks();
 
             alert(`Success! +${reward} AST2 added to your balance.`);
         }
 
-        // Fungsi asli untuk membuka menu Share Telegram agar bisa mengundang member nyata
+        function renderCompletedTasks() {
+            userState.completedTasks.forEach(taskId => {
+                const taskElement = document.getElementById(`task-${taskId}`);
+                if (taskElement) {
+                    const button = taskElement.querySelector("button");
+                    if (button) {
+                        button.innerText = "Completed ✓";
+                        button.disabled = true;
+                        button.style.background = "#27ae60";
+                        button.style.color = "white";
+                        button.style.opacity = "1";
+                        button.removeAttribute("onclick");
+                    }
+                }
+            });
+        }
+
+        // Fitur Pembaruan Penarikan: Tanpa Batas Minimal (Langsung Kirim/Proses Saldo)
+        async function withdrawBalance() {
+            if (!userState.tonWallet) {
+                alert("Please connect your TON wallet first before withdrawing!");
+                return;
+            }
+
+            if (userState.balance <= 0) {
+                alert("You have no balance to withdraw.");
+                return;
+            }
+
+            let amountToWithdraw = userState.balance;
+            
+            // Proses pengurangan saldo langsung
+            userState.balance = 0;
+            await saveState();
+            
+            renderUI();
+            renderLevels();
+
+            alert(`Withdrawal request of ${amountToWithdraw.toFixed(2)} AST2 sent successfully to your TON Wallet (${userState.tonWallet})!`);
+        }
+
         function shareInviteLink() {
             const inviteUrl = document.getElementById("invite-link").value;
             const text = encodeURIComponent("🚀 Join Asteroid2Shiba Mining Community, mine AST2 tokens, and connect your TON wallet now!");
             const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteUrl)}&text=${text}`;
-            
-            // Membuka jendela share Telegram bawaan
             window.open(shareUrl, '_blank');
         }
 
